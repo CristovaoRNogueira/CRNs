@@ -6,18 +6,10 @@
             $price = get_post_meta( get_the_ID(), '_crns_price', true );
             $link = get_post_meta( get_the_ID(), '_crns_affiliate_link', true );
             $rating = get_post_meta( get_the_ID(), '_crns_rating', true );
-            
-            // Detecta categoria com fallback
-            $terms = get_the_terms( get_the_ID(), 'tipo_produto' );
-            $cat_slug = (!empty($terms) && !is_wp_error($terms)) ? $terms[0]->slug : 'notebooks';
-            
-            // Debug para você ver no código fonte se algo der errado
-            echo "";
         ?>
             <article id="post-<?php the_ID(); ?>" <?php post_class('review-container'); ?>>
                 <header class="review-header">
                     <div class="container">
-                        <span class="cat-label"><?php echo isset($terms[0]) ? $terms[0]->name : 'Review'; ?></span>
                         <h1><?php the_title(); ?></h1>
                     </div>
                 </header>
@@ -38,22 +30,41 @@
                         <h3>Ficha Técnica</h3>
                         <ul>
                             <?php 
-                            // Puxa as specs corretas usando a função normalizada
-                            $keys = crns_get_specs_by_category( $cat_slug );
-                            $labels = crns_get_all_specs_labels();
-                            
+                            $all_meta = get_post_meta(get_the_ID());
                             $found = false;
-                            foreach($keys as $k) {
-                                $val = get_post_meta( get_the_ID(), $k, true );
-                                if($val) {
-                                    $label = isset($labels[$k]) ? $labels[$k] : $k;
-                                    echo "<li><strong>$label:</strong> <span>$val</span></li>";
+                            
+                            // 1. CAMPOS PADRÕES (Mostra primeiro, com labels bonitos)
+                            $standard_keys = [
+                                '_crns_os', '_crns_cpu', '_crns_ram', '_crns_storage', 
+                                '_crns_screen', '_crns_gpu', '_crns_camera_main', 
+                                '_crns_camera_front', '_crns_battery', '_crns_print_tech',
+                                '_crns_print_color', '_crns_print_conn', '_crns_voltage',
+                                '_crns_weight'
+                            ];
+
+                            foreach($standard_keys as $key) {
+                                if(isset($all_meta[$key][0]) && $all_meta[$key][0] !== '') {
+                                    // Formata usando a função global ou usa o nome da chave se falhar
+                                    $label = function_exists('crns_format_spec_label') ? crns_format_spec_label($key) : $key;
+                                    echo "<li><strong>{$label}:</strong> <span>{$all_meta[$key][0]}</span></li>";
                                     $found = true;
                                 }
                             }
-                            if(!$found) echo "<li>Especificações não cadastradas. Edite o produto.</li>";
+
+                            // 2. CAMPOS EXTRAS (Dinâmicos)
+                            // Agora só vai aparecer o que você REALMENTE cadastrou no botão "Adicionar Campo Extra"
+                            foreach($all_meta as $key => $values) {
+                                if (strpos($key, '_spec_') === 0 && $values[0] !== '') {
+                                    $label = function_exists('crns_format_spec_label') ? crns_format_spec_label($key) : ucwords(str_replace('_spec_', '', $key));
+                                    echo "<li><strong>{$label}:</strong> <span>{$values[0]}</span></li>";
+                                    $found = true;
+                                }
+                            }
+
+                            if(!$found) echo "<li style='color:#999'>Especificações não cadastradas.</li>";
                             ?>
                         </ul>
+                        <p class="specs-disclaimer">*Especificações fornecidas pelo fabricante.</p>
                     </div>
                 </div>
 

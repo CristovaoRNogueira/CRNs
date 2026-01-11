@@ -2,23 +2,24 @@
 /* Template Name: Página de Ofertas */
 get_header(); 
 
-// 1. Captura filtros da URL
-$filter_cat = isset($_GET['categoria']) ? $_GET['categoria'] : ''; // Novo: Filtro de Categoria
-$filter_marcas = isset($_GET['marca']) ? $_GET['marca'] : array();
-$filter_ram = isset($_GET['ram']) ? $_GET['ram'] : array();
-$filter_ssd = isset($_GET['ssd']) ? $_GET['ssd'] : array();
+// 1. Captura inputs
+$filter_cat = isset($_GET['filtro_cat']) ? $_GET['filtro_cat'] : ''; // Atenção: filtro_cat
 $min_price = isset($_GET['min_price']) ? $_GET['min_price'] : '';
 $max_price = isset($_GET['max_price']) ? $_GET['max_price'] : '';
+$filter_marca = isset($_GET['marca']) ? $_GET['marca'] : [];
 
-// 2. Configuração Dinâmica (O Cérebro)
-// Se houver uma categoria selecionada, carregamos os filtros específicos dela.
-// Se não, carregamos apenas o básico (Marca/Preço).
-$enabled_filters = ['marca']; // Padrão
-if( $filter_cat && function_exists('crns_get_filters_config') ) {
-    $enabled_filters = crns_get_filters_config($filter_cat);
+// 2. Descobre ID da Categoria
+$current_term_id = 0;
+if ( $filter_cat ) {
+    $term_obj = get_term_by('slug', $filter_cat, 'tipo_produto');
+    if ($term_obj) $current_term_id = $term_obj->term_id;
 }
 
-// 3. Monta a Query
+// 3. Busca Filtros Disponíveis
+$available_filters = function_exists('crns_get_sidebar_filters') ? crns_get_sidebar_filters($current_term_id) : [];
+
+// 4. MONTA A QUERY PERSONALIZADA (WP_Query)
+// Como o functions.php não interfere mais aqui, montamos a lógica completa.
 $args = array(
     'post_type'      => 'review',
     'posts_per_page' => 24,
@@ -29,10 +30,8 @@ $args = array(
     'order'          => 'ASC'
 );
 
-// Filtro: Preço Existe
+// Filtro Preço
 $args['meta_query'][] = array('key' => '_crns_price', 'compare' => 'EXISTS');
-
-// Filtro: Faixa de Preço
 if ( $min_price && $max_price ) {
     $args['meta_query'][] = array(
         'key' => '_crns_price',
@@ -41,7 +40,7 @@ if ( $min_price && $max_price ) {
     );
 }
 
-// Filtro: Categoria (Tipo de Produto) - NOVO
+// Filtro Categoria
 if ( $filter_cat ) {
     $args['tax_query'][] = array(
         'taxonomy' => 'tipo_produto',
@@ -50,26 +49,38 @@ if ( $filter_cat ) {
     );
 }
 
-// Filtro: Marcas
-if ( !empty($filter_marcas) ) {
+// Filtro Marca
+if ( !empty($filter_marca) ) {
     $args['tax_query'][] = array(
         'taxonomy' => 'marca',
         'field'    => 'slug',
-        'terms'    => $filter_marcas,
+        'terms'    => $filter_marca,
     );
 }
 
-// Filtros Técnicos (Só aplicados se a categoria ativa permitir)
-if ( in_array('ram', $enabled_filters) && !empty($filter_ram) ) {
-    $ram_query = array('relation' => 'OR');
-    foreach($filter_ram as $ram) $ram_query[] = array('key' => '_crns_ram', 'value' => $ram, 'compare' => 'LIKE');
-    $args['meta_query'][] = $ram_query;
-}
-
-if ( in_array('ssd', $enabled_filters) && !empty($filter_ssd) ) {
-    $ssd_query = array('relation' => 'OR');
-    foreach($filter_ssd as $ssd) $ssd_query[] = array('key' => '_crns_storage', 'value' => $ssd, 'compare' => 'LIKE');
-    $args['meta_query'][] = $ssd_query;
+// 5. FILTROS DINÂMICOS (PROCESSAMENTO MANUAL NA PÁGINA)
+foreach($_GET as $param => $values) {
+    // Detecta parâmetros f_ (ex: f_cpu)
+    if (strpos($param, 'f_') === 0 && !empty($values)) {
+        $slug = str_replace('f_', '', $param);
+        
+        $sub_query = array('relation' => 'OR');
+        
+        // Se for array (ex: f_cpu[0]) ou string
+        if(is_array($values)) {
+            foreach($values as $v) {
+                $v = urldecode($v); // Limpa %20
+                $sub_query[] = array('key' => '_crns_' . $slug, 'value' => $v, 'compare' => 'LIKE');
+                $sub_query[] = array('key' => '_spec_' . $slug, 'value' => $v, 'compare' => 'LIKE');
+            }
+        } else {
+            $values = urldecode($values);
+            $sub_query[] = array('key' => '_crns_' . $slug, 'value' => $values, 'compare' => 'LIKE');
+            $sub_query[] = array('key' => '_spec_' . $slug, 'value' => $values, 'compare' => 'LIKE');
+        }
+        
+        $args['meta_query'][] = $sub_query;
+    }
 }
 
 $offers = new WP_Query( $args );
@@ -81,11 +92,16 @@ $offers = new WP_Query( $args );
         <aside class="offers-sidebar">
             <div class="filter-box">
                 <h3>🔍 Filtros</h3>
-                <form action="<?php echo get_permalink(); ?>" method="GET">
+                
+                <form action="<?php echo esc_url( get_permalink() ); ?>" method="GET">
                     
+                    <?php if ( ! get_option('permalink_structure') ) : ?>
+                        <input type="hidden" name="page_id" value="<?php echo get_queried_object_id(); ?>">
+                    <?php endif; ?>
+
                     <div class="filter-group">
                         <h4>Categoria</h4>
-                        <select name="categoria" onchange="this.form.submit()" style="width:100%; padding:8px;">
+                        <select name="filtro_cat" onchange="this.form.submit()" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
                             <option value="">Todas</option>
                             <?php 
                             $cats = get_terms(['taxonomy' => 'tipo_produto', 'hide_empty' => true]);
@@ -105,40 +121,36 @@ $offers = new WP_Query( $args );
                         </div>
                     </div>
 
-                    <?php if(in_array('marca', $enabled_filters)): ?>
                     <div class="filter-group">
                         <h4>Marca</h4>
                         <?php 
                         $marcas = get_terms(['taxonomy' => 'marca', 'hide_empty' => true]);
-                        if($marcas): foreach($marcas as $marca): ?>
+                        if($marcas && !is_wp_error($marcas)): foreach($marcas as $m): ?>
                             <label>
-                                <input type="checkbox" name="marca[]" value="<?php echo $marca->slug; ?>" <?php if(in_array($marca->slug, $filter_marcas)) echo 'checked'; ?>>
-                                <?php echo $marca->name; ?>
+                                <input type="checkbox" name="marca[]" value="<?php echo $m->slug; ?>" <?php if(in_array($m->slug, $filter_marca)) echo 'checked'; ?>>
+                                <?php echo $m->name; ?>
                             </label>
                         <?php endforeach; endif; ?>
                     </div>
-                    <?php endif; ?>
 
-                    <?php if(in_array('ram', $enabled_filters)): ?>
-                    <div class="filter-group">
-                        <h4>Memória RAM</h4>
-                        <?php $rams = ['4GB', '8GB', '16GB', '32GB']; foreach($rams as $r): ?>
-                            <label><input type="checkbox" name="ram[]" value="<?php echo $r; ?>" <?php if(in_array($r, $filter_ram)) echo 'checked'; ?>> <?php echo $r; ?></label>
+                    <?php if(!empty($available_filters)): ?>
+                        <?php foreach($available_filters as $param => $data): 
+                            $selected = isset($_GET[$param]) ? $_GET[$param] : [];
+                        ?>
+                        <div class="filter-group">
+                            <h4><?php echo esc_html($data['label']); ?></h4>
+                            <?php foreach($data['options'] as $option): ?>
+                                <label>
+                                    <input type="checkbox" name="<?php echo $param; ?>[]" value="<?php echo esc_attr($option); ?>" <?php if(in_array($option, $selected)) echo 'checked'; ?>>
+                                    <?php echo esc_html($option); ?>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
                         <?php endforeach; ?>
-                    </div>
-                    <?php endif; ?>
-
-                    <?php if(in_array('ssd', $enabled_filters) || in_array('storage', $enabled_filters)): ?>
-                    <div class="filter-group">
-                        <h4>Armazenamento</h4>
-                        <?php $ssds = ['256GB', '512GB', '1TB']; foreach($ssds as $s): ?>
-                            <label><input type="checkbox" name="ssd[]" value="<?php echo $s; ?>" <?php if(in_array($s, $filter_ssd)) echo 'checked'; ?>> <?php echo $s; ?></label>
-                        <?php endforeach; ?>
-                    </div>
                     <?php endif; ?>
 
                     <button type="submit" class="btn-filter">Aplicar Filtros</button>
-                    <a href="<?php echo get_permalink(); ?>" class="btn-clear">Limpar</a>
+                    <a href="<?php echo esc_url( get_permalink() ); ?>" class="btn-clear">Limpar</a>
                 </form>
             </div>
         </aside>
@@ -148,39 +160,29 @@ $offers = new WP_Query( $args );
                 <h1>
                     <?php echo $filter_cat ? 'Ofertas de ' . ucfirst($filter_cat) : 'Ofertas de Tecnologia'; ?>
                 </h1>
-                <span><?php echo $offers->found_posts; ?> produtos</span>
+                <span><?php echo $offers->found_posts; ?> produtos encontrados</span>
             </header>
 
             <div class="offers-grid">
                 <?php if( $offers->have_posts() ): ?>
                     <?php while( $offers->have_posts() ) : $offers->the_post();
-                        // Meta dados básicos
                         $price = get_post_meta( get_the_ID(), '_crns_price', true );
                         $old_price = get_post_meta( get_the_ID(), '_crns_old_price', true );
                         $link = get_post_meta( get_the_ID(), '_crns_affiliate_link', true );
                         
-                        // Lógica Dinâmica de Specs do Card
-                        // 1. Descobre a categoria do item
-                        $terms = get_the_terms( get_the_ID(), 'tipo_produto' );
-                        $cat_slug = ($terms && !is_wp_error($terms)) ? $terms[0]->slug : 'notebooks';
+                        // Specs visual
+                        $all_meta = get_post_meta(get_the_ID());
+                        $specs_html = ''; $c = 0;
+                        $priority = ['_crns_cpu', '_crns_ram', '_crns_storage', '_crns_screen', '_crns_print_tech', '_crns_camera_main'];
                         
-                        // 2. Pega os campos configurados para essa categoria (do functions.php)
-                        $specs_keys = function_exists('crns_get_specs_by_category') ? crns_get_specs_by_category($cat_slug) : [];
-                        
-                        // 3. Monta o HTML das specs (pega só as 2 primeiras relevantes)
-                        $specs_html = '';
-                        $count = 0;
-                        foreach($specs_keys as $key) {
-                            if($count >= 2) break; // Limite de 2 itens no card
-                            $val = get_post_meta(get_the_ID(), $key, true);
-                            if($val) {
-                                $specs_html .= '<span>' . esc_html($val) . '</span> • ';
-                                $count++;
+                        foreach($priority as $key) {
+                            if($c >= 2) break;
+                            if(isset($all_meta[$key][0]) && $all_meta[$key][0]) {
+                                $specs_html .= '<span>' . esc_html($all_meta[$key][0]) . '</span> • ';
+                                $c++;
                             }
                         }
-                        $specs_html = rtrim($specs_html, ' • '); // Remove último separador
-
-                        // Desconto
+                        
                         $discount_html = '';
                         if($old_price > $price && $old_price > 0) {
                             $porc = round((($old_price - $price) / $old_price) * 100);
@@ -198,15 +200,8 @@ $offers = new WP_Query( $args );
                         
                         <div class="card-info">
                             <h3 class="card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-                            
-                            <div class="card-specs-mini">
-                                <?php echo $specs_html ? $specs_html : 'Ver detalhes'; ?>
-                            </div>
-
+                            <div class="card-specs-mini"><?php echo $specs_html ? rtrim($specs_html, ' • ') : 'Ver detalhes'; ?></div>
                             <div class="card-price-block">
-                                <?php if($old_price > $price): ?>
-                                    <span class="card-old-price">R$ <?php echo number_format((float)$old_price, 2, ',', '.'); ?></span>
-                                <?php endif; ?>
                                 <span class="card-price">R$ <?php echo number_format((float)$price, 2, ',', '.'); ?></span>
                                 <span class="card-installments">em até 10x sem juros</span>
                             </div>
@@ -225,7 +220,7 @@ $offers = new WP_Query( $args );
                 <?php else: ?>
                     <div class="no-results" style="grid-column: 1 / -1; text-align:center; padding: 40px;">
                         <p style="font-size:1.2rem">🚫 Nenhum produto encontrado.</p>
-                        <a href="<?php echo get_permalink(); ?>" class="btn-clear">Limpar Filtros</a>
+                        <a href="<?php echo esc_url( get_permalink() ); ?>" class="btn-clear">Limpar Filtros</a>
                     </div>
                 <?php endif; ?>
             </div>
