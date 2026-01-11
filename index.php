@@ -1,35 +1,28 @@
 <?php get_header(); ?>
-
-<img src="<?php header_image(); ?>" height="<?php echo esc_attr( get_custom_header()->height ); ?>" width="<?php echo esc_attr( get_custom_header()->width ); ?>" alt="" />
-
-        <div id="content" class="site-content">
-            <div id="primary" class="content-area">
-                <main id="main" class="site-main">
-                    <h1><?php esc_html_e( 'Blog', 'crns' ) ?></h1>
-                    <div class="container">
-                        <div class="blog-items">
-                            <?php 
-                                if( have_posts() ):
-                                    while( have_posts() ) : the_post();
-                                    get_template_part( 'parts/content' );
-                                    endwhile;
-                                    ?>
-                                        <div class="crns-pagination">
-                                            <div class="pages new">
-                                                <?php previous_posts_link( esc_html__( "<< Newer posts", 'crns' ) ); ?>
-                                            </div>
-                                            <div class="pages old">
-                                                <?php next_posts_link( esc_html__( "Older posts >>", 'crns' ) ); ?>
-                                            </div>
-                                        </div>
-                                    <?php
-                                else: ?>
-                                    <p><?php esc_html_e( 'Nothing yet to be displayed!', 'crns' ) ?></p>
-                            <?php endif; ?>                                
-                        </div>
-                        <?php get_sidebar(); ?>
-                    </div>
-                </main>
+<div id="content" class="site-content">
+    <div id="primary" class="content-area">
+        <main id="main" class="site-main">
+            <div class="container">
+                <header class="page-header"><h1 class="page-title">Últimas Análises</h1></header>
+                <div class="blog-grid">
+                    <?php if( have_posts() ): while( have_posts() ) : the_post(); ?>
+                            <article <?php post_class('grid-item'); ?>>
+                                <div class="grid-thumb">
+                                    <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail('medium_large'); ?></a>
+                                    <?php $rate = get_post_meta( get_the_ID(), '_crns_rating', true ); 
+                                    if($rate) echo "<span class='grid-rating'>$rate</span>"; ?>
+                                </div>
+                                <div class="grid-content">
+                                    <h3 class="grid-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+                                    <p><?php echo wp_trim_words( get_the_excerpt(), 12 ); ?></p>
+                                    <a href="<?php the_permalink(); ?>" class="grid-link">Ler Review</a>
+                                </div>
+                            </article>
+                    <?php endwhile; endif; ?>
+                </div>
+                <div class="crns-pagination"><?php the_posts_pagination(); ?></div>
             </div>
-        </div>
+        </main>
+    </div>
+</div>
 <?php get_footer(); ?>
