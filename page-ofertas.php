@@ -89,71 +89,94 @@ $offers = new WP_Query( $args );
 <div class="content-area offers-layout" style="background-color: #f4f6f8; padding-top: 20px;">
     <div class="container container-flex">
         
-        <aside class="offers-sidebar">
-            <div class="filter-box">
-                <h3>🔍 Filtros</h3>
-                
-                <form action="<?php echo esc_url( get_permalink() ); ?>" method="GET">
-                    
-                    <?php if ( ! get_option('permalink_structure') ) : ?>
-                        <input type="hidden" name="page_id" value="<?php echo get_queried_object_id(); ?>">
-                    <?php endif; ?>
+<aside class="offers-sidebar">
+    <div class="filter-box">
+        <h3>🔍 Filtros</h3>
+        
+        <?php 
+        // Define o action dependendo se é taxonomy ou page
+        $action_url = is_tax() ? get_term_link($term) : esc_url( get_permalink() );
+        ?>
+        <form action="<?php echo $action_url; ?>" method="GET">
+            
+            <?php if ( ! get_option('permalink_structure') && !is_tax() ) : ?>
+                <input type="hidden" name="page_id" value="<?php echo get_queried_object_id(); ?>">
+            <?php endif; ?>
 
-                    <div class="filter-group">
-                        <h4>Categoria</h4>
-                        <select name="filtro_cat" onchange="this.form.submit()" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
-                            <option value="">Todas</option>
-                            <?php 
-                            $cats = get_terms(['taxonomy' => 'tipo_produto', 'hide_empty' => true]);
-                            foreach($cats as $cat): ?>
-                                <option value="<?php echo $cat->slug; ?>" <?php selected($filter_cat, $cat->slug); ?>>
-                                    <?php echo $cat->name; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="filter-group">
-                        <h4>Faixa de Preço</h4>
-                        <div class="price-inputs">
-                            <input type="number" name="min_price" placeholder="Mín" value="<?php echo esc_attr($min_price); ?>">
-                            <input type="number" name="max_price" placeholder="Máx" value="<?php echo esc_attr($max_price); ?>">
-                        </div>
-                    </div>
-
-                    <div class="filter-group">
-                        <h4>Marca</h4>
+            <div class="filter-group active">
+                <h4>Categoria</h4>
+                <div class="filter-options">
+                    <select name="<?php echo is_tax() ? 'filtro_cat_disabled' : 'filtro_cat'; ?>" 
+                            onchange="this.form.submit()" 
+                            style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;"
+                            <?php if(is_tax()) echo 'disabled style="background:#eee"'; ?>>
+                        <option value="">Todas</option>
                         <?php 
-                        $marcas = get_terms(['taxonomy' => 'marca', 'hide_empty' => true]);
-                        if($marcas && !is_wp_error($marcas)): foreach($marcas as $m): ?>
-                            <label>
-                                <input type="checkbox" name="marca[]" value="<?php echo $m->slug; ?>" <?php if(in_array($m->slug, $filter_marca)) echo 'checked'; ?>>
-                                <?php echo $m->name; ?>
-                            </label>
-                        <?php endforeach; endif; ?>
-                    </div>
-
-                    <?php if(!empty($available_filters)): ?>
-                        <?php foreach($available_filters as $param => $data): 
-                            $selected = isset($_GET[$param]) ? $_GET[$param] : [];
-                        ?>
-                        <div class="filter-group">
-                            <h4><?php echo esc_html($data['label']); ?></h4>
-                            <?php foreach($data['options'] as $option): ?>
-                                <label>
-                                    <input type="checkbox" name="<?php echo $param; ?>[]" value="<?php echo esc_attr($option); ?>" <?php if(in_array($option, $selected)) echo 'checked'; ?>>
-                                    <?php echo esc_html($option); ?>
-                                </label>
-                            <?php endforeach; ?>
-                        </div>
+                        $cats = get_terms(['taxonomy' => 'tipo_produto', 'hide_empty' => true]);
+                        $current_cat = isset($_GET['filtro_cat']) ? $_GET['filtro_cat'] : (is_tax() ? $term->slug : '');
+                        foreach($cats as $cat): ?>
+                            <option value="<?php echo $cat->slug; ?>" <?php selected($current_cat, $cat->slug); ?>>
+                                <?php echo $cat->name; ?>
+                            </option>
                         <?php endforeach; ?>
-                    <?php endif; ?>
-
-                    <button type="submit" class="btn-filter">Aplicar Filtros</button>
-                    <a href="<?php echo esc_url( get_permalink() ); ?>" class="btn-clear">Limpar</a>
-                </form>
+                    </select>
+                    <?php if(is_tax()): ?><small style="color:#999; display:block; margin-top:5px;">Você está em <?php echo $term->name; ?></small><?php endif; ?>
+                </div>
             </div>
-        </aside>
+
+            <?php $price_active = (!empty($min_price) || !empty($max_price)) ? 'active' : ''; ?>
+            <div class="filter-group <?php echo $price_active; ?>">
+                <h4>Faixa de Preço</h4>
+                <div class="filter-options">
+                    <div class="price-inputs">
+                        <input type="number" name="min_price" placeholder="Mín" value="<?php echo esc_attr($min_price); ?>">
+                        <input type="number" name="max_price" placeholder="Máx" value="<?php echo esc_attr($max_price); ?>">
+                    </div>
+                </div>
+            </div>
+
+            <?php $marca_active = !empty($filter_marca) ? 'active' : ''; ?>
+            <div class="filter-group <?php echo $marca_active; ?>">
+                <h4>Marca</h4>
+                <div class="filter-options">
+                    <?php 
+                    $marcas = get_terms(['taxonomy' => 'marca', 'hide_empty' => true]);
+                    if($marcas && !is_wp_error($marcas)): foreach($marcas as $m): ?>
+                        <label>
+                            <input type="checkbox" name="marca[]" value="<?php echo $m->slug; ?>" <?php if(in_array($m->slug, $filter_marca)) echo 'checked'; ?>>
+                            <?php echo $m->name; ?>
+                        </label>
+                    <?php endforeach; endif; ?>
+                </div>
+            </div>
+
+            <?php if(!empty($available_filters)): ?>
+                <?php foreach($available_filters as $param => $data): 
+                    $selected = isset($_GET[$param]) ? $_GET[$param] : [];
+                    // Se tiver algo marcado neste grupo, adiciona classe 'active' para vir aberto
+                    $is_open = !empty($selected) ? 'active' : '';
+                ?>
+                <div class="filter-group <?php echo $is_open; ?>">
+                    <h4><?php echo esc_html($data['label']); ?></h4>
+                    <div class="filter-options">
+                        <?php foreach($data['options'] as $option): ?>
+                            <label>
+                                <input type="checkbox" name="<?php echo $param; ?>[]" value="<?php echo esc_attr($option); ?>" <?php if(in_array($option, $selected)) echo 'checked'; ?>>
+                                <?php echo esc_html($option); ?>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+
+            <div style="padding-top:15px;">
+                <button type="submit" class="btn-filter">Aplicar Filtros</button>
+                <a href="<?php echo $action_url; ?>" class="btn-clear">Limpar</a>
+            </div>
+        </form>
+    </div>
+</aside>
 
         <div class="offers-content">
             <header class="offers-header-top">

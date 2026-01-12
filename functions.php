@@ -355,7 +355,24 @@ function crns_add_review_schema() {
 add_action( 'wp_head', 'crns_add_review_schema' );
 function crns_compare_shortcode($atts) { return ''; } add_shortcode('comparar', 'crns_compare_shortcode');
 
-
+/* --- SCRIPT PARA FILTROS DROPDOWN (FOOTER) --- */
+function crns_filter_accordion_script() {
+    ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const triggers = document.querySelectorAll('.filter-group h4');
+        
+        triggers.forEach(trigger => {
+            trigger.addEventListener('click', function() {
+                // Alterna a classe 'active' no pai (.filter-group)
+                this.parentElement.classList.toggle('active');
+            });
+        });
+    });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'crns_filter_accordion_script');
 
 
 
