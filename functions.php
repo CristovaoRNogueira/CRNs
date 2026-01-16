@@ -212,8 +212,17 @@ function crns_format_spec_label( $meta_key ) {
     return ucwords($clean);
 }
 
-/* --- MOTOR DE FILTROS: VERSÃO ROBUSTA --- */
+/* --- MOTOR DE FILTROS: VERSÃO OTIMIZADA COM CACHE --- */
 function crns_get_sidebar_filters( $term_id = 0 ) {
+    // 1. Tenta pegar do cache primeiro
+    $cache_key = 'crns_filters_' . $term_id;
+    $cached_filters = get_transient( $cache_key );
+
+    if ( false !== $cached_filters ) {
+        return $cached_filters;
+    }
+
+    // Se não tiver cache, processa o banco de dados
     global $wpdb;
     
     $post_ids = [];
@@ -226,6 +235,7 @@ function crns_get_sidebar_filters( $term_id = 0 ) {
     }
 
     $query = "SELECT DISTINCT meta_key FROM {$wpdb->postmeta} WHERE meta_value != ''";
+    $ids_string = '';
     
     if ( !empty($post_ids) ) {
         $ids_string = implode(',', array_map('intval', $post_ids));
@@ -259,7 +269,19 @@ function crns_get_sidebar_filters( $term_id = 0 ) {
             }
         }
     }
+
+    // 2. Salva o resultado no cache por 24 horas (DAY_IN_SECONDS)
+    set_transient( $cache_key, $filters, DAY_IN_SECONDS );
+
     return $filters;
+}
+
+// Limpar o cache quando salvar/editar um produto para atualizar filtros novos
+add_action( 'save_post', 'crns_clear_filter_cache' );
+function crns_clear_filter_cache() {
+    global $wpdb;
+    // Apaga todos os transients relacionados a filtros
+    $wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_crns_filters_%'" );
 }
 
 /* --- APLICAÇÃO DOS FILTROS NA QUERY (GLOBAL INTELIGENTE - ATUALIZADO) --- */
@@ -363,14 +385,55 @@ function crns_filter_accordion_script() {
 }
 add_action('wp_footer', 'crns_filter_accordion_script');
 
-// Schema e Shortcode
+// Schema JSON-LD Otimizado para Reviews
 function crns_add_review_schema() {
     if ( is_singular( 'review' ) ) {
-        global $post; $price = get_post_meta( $post->ID, '_crns_price', true );
-        if( $price ) echo '<script type="application/ld+json"> { "@context": "https://schema.org/", "@type": "Product", "name": "'.get_the_title().'", "offers": { "@type": "Offer", "price": "'.$price.'", "priceCurrency": "BRL" } } </script>';
+        global $post; 
+        $price = get_post_meta( $post->ID, '_crns_price', true );
+        $rating = get_post_meta( $post->ID, '_crns_rating', true ); // Sua nota (ex: 9.5)
+        $img_url = get_the_post_thumbnail_url($post->ID, 'full');
+        $excerpt = wp_strip_all_tags(get_the_excerpt());
+
+        if( $price ) {
+            // Converte nota 0-10 para escala 0-5 se necessário, ou mantém 0-10
+            // O Google prefere 1-5, vamos adaptar:
+            $rating_value = $rating ? $rating : '0';
+            
+            echo '<script type="application/ld+json">
+            {
+              "@context": "https://schema.org/",
+              "@type": "Product",
+              "name": "'. get_the_title() .'",
+              "image": "'. $img_url .'",
+              "description": "'. $excerpt .'",
+              "offers": {
+                "@type": "Offer",
+                "url": "'. get_the_permalink() .'",
+                "priceCurrency": "BRL",
+                "price": "'. $price .'",
+                "availability": "https://schema.org/InStock"
+              },
+              "review": {
+                "@type": "Review",
+                "reviewRating": {
+                  "@type": "Rating",
+                  "ratingValue": "'. $rating_value .'",
+                  "bestRating": "10",
+                  "worstRating": "1"
+                },
+                "author": {
+                  "@type": "Person",
+                  "name": "Equipe '. get_bloginfo('name') .'"
+                }
+              }
+            }
+            </script>';
+        }
     }
 }
 add_action( 'wp_head', 'crns_add_review_schema' );
+
+
 function crns_compare_shortcode($atts) { return ''; } add_shortcode('comparar', 'crns_compare_shortcode');
 
 /* --- BUSCAR CLASSIFICAÇÕES POR CATEGORIA (INTELIGENTE) --- */

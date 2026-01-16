@@ -822,6 +822,7 @@ img { max-width: 100%; height: auto; }
 
 .visual-main {
     grid-row: 1 / 3; /* Ocupa altura total esquerda */
+    background-color: #ddd;
     background-size: cover;
     background-position: center;
     border-radius: 12px;
@@ -830,6 +831,7 @@ img { max-width: 100%; height: auto; }
 }
 
 .visual-sub {
+    background-color: #ddd;
     background-size: cover;
     background-position: center;
     border-radius: 12px;
