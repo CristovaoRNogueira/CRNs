@@ -13,9 +13,9 @@
                     Seu guia definitivo para comprar tecnologia. Análises imparciais, comparativos técnicos e as melhores ofertas do dia.
                 </p>
                 <div class="footer-social">
-                    <a href="#" aria-label="Instagram"><span class="dashicons dashicons-instagram"></span></a>
-                    <a href="#" aria-label="YouTube"><span class="dashicons dashicons-video-alt3"></span></a>
-                    <a href="#" aria-label="Grupo WhatsApp"><span class="dashicons dashicons-whatsapp"></span></a>
+                    <a href="https://www.instagram.com/crn.sistemas/" aria-label="Instagram"><span class="dashicons dashicons-instagram"></span></a>
+                    <a href="https://chat.whatsapp.com/L1gN8KvrxVH63AY591Rrbs" aria-label="Grupo WhatsApp"><span class="dashicons dashicons-whatsapp"></span></a>
+                    <a href="#" aria-label="YouTube"><span class="dashicons dashicons-video-alt3"></span></a>                    
                 </div>
             </div>
 

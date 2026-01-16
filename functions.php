@@ -321,14 +321,42 @@ function crns_remove_native_custom_fields() { remove_meta_box( 'postcustom', 're
 add_action( 'admin_menu', 'crns_remove_native_custom_fields' );
 
 /* --- SCRIPT DROPDOWN --- */
+/* --- SCRIPT FILTROS (Acordeão + Mobile Toggle) --- */
 function crns_filter_accordion_script() {
     ?>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        
+        // 1. Lógica do Acordeão (Títulos H4)
         const triggers = document.querySelectorAll('.filter-group h4');
         triggers.forEach(trigger => {
-            trigger.addEventListener('click', function() { this.parentElement.classList.toggle('active'); });
+            trigger.addEventListener('click', function() {
+                this.parentElement.classList.toggle('active');
+            });
         });
+
+        // 2. Lógica do Botão Mobile (Expandir/Recolher)
+        const mobileBtn = document.getElementById('mobile-filter-toggle');
+        const secFilters = document.getElementById('secondary-filters');
+
+        if(mobileBtn && secFilters) {
+            mobileBtn.addEventListener('click', function() {
+                secFilters.classList.toggle('open');
+                
+                // (Opcional) Troca o texto do botão
+                if(secFilters.classList.contains('open')) {
+                    mobileBtn.innerHTML = '<span class="dashicons dashicons-arrow-up-alt2"></span> Ocultar Filtros';
+                    mobileBtn.style.background = '#f9f9f9';
+                    mobileBtn.style.color = '#555';
+                    mobileBtn.style.borderColor = '#ccc';
+                } else {
+                    mobileBtn.innerHTML = '<span class="dashicons dashicons-filter"></span> Filtrar por Preço, Marca e Specs';
+                    mobileBtn.style.background = '#fff';
+                    mobileBtn.style.color = 'var(--primary)';
+                    mobileBtn.style.borderColor = 'var(--primary)'; // Se não funcionar var, use a cor hex #ff5500
+                }
+            });
+        }
     });
     </script>
     <?php

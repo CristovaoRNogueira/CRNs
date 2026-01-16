@@ -1,33 +1,50 @@
 <?php get_header(); ?>
 
-<div id="primary">
-    <div id="main">
-        <div class="container">
-
-            <?php 
-            while( have_posts() ):
-                the_post();
-                get_template_part( 'parts/content', 'single' );
-                ?>
-                <div class="crns-pagination">
-                    <div class="pages next">
-                        <?php next_post_link( '&laquo; %link' ); ?>
-                    </div>
-                    <div class="pages previous">
-                        <?php previous_post_link( '%link &raquo;' ); ?>  
-                    </div>
-                </div>
+<div class="site-content-blog single-post-view">
+    <div class="container container-flex">
+        
+        <main class="blog-main">
+            <?php while ( have_posts() ) : the_post(); ?>
                 
-                <?php
+                <article id="post-<?php the_ID(); ?>" <?php post_class('single-article'); ?>>
+                    
+                    <header class="single-header">
+                        <div class="blog-meta">
+                            <span class="date"><?php echo get_the_date(); ?></span>
+                            <span class="cat"><?php the_category(', '); ?></span>
+                        </div>
+                        <h1><?php the_title(); ?></h1>
+                    </header>
 
-                if( comments_open() || get_comments_number() ){
+                    <?php if(has_post_thumbnail()): ?>
+                        <div class="single-thumb">
+                            <?php the_post_thumbnail('large'); ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="entry-content">
+                        <?php the_content(); ?>
+                    </div>
+
+                    <footer class="single-footer">
+                        <div class="tags-list"><?php the_tags('Tags: ', ', ', ''); ?></div>
+                    </footer>
+
+                </article>
+
+                <?php 
+                if ( comments_open() || get_comments_number() ) :
                     comments_template();
-                }
+                endif;
+                ?>
 
-            endwhile;
-            ?>
+            <?php endwhile; ?>
+        </main>
 
-        </div>
+        <aside class="blog-sidebar">
+            <?php get_sidebar(); ?>
+        </aside>
+
     </div>
 </div>
 

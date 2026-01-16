@@ -1031,4 +1031,325 @@ img { max-width: 100%; height: auto; }
 }
 
 
+/* --- FILTROS MOBILE OTIMIZADOS --- */
+
+/* Por padrão (Desktop), esconde o botão toggle */
+.btn-mobile-toggle {
+    display: none;
+}
+
+/* Por padrão (Desktop), mostra os filtros */
+.secondary-filters-wrapper {
+    display: block;
+}
+
+/* MEDIA QUERY PARA MOBILE (Abaixo de 991px) */
+@media (max-width: 991px) {
+    
+    /* Botão Toggle aparece */
+    .btn-mobile-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        background: #fff;
+        border: 1px solid var(--primary);
+        color: var(--primary);
+        padding: 12px;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 15px;
+        font-size: 0.95rem;
+        transition: 0.2s;
+    }
+    
+    .btn-mobile-toggle:hover {
+        background: #f0f7ff;
+    }
+    
+    .btn-mobile-toggle .dashicons {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Esconde os filtros secundários inicialmente */
+    .secondary-filters-wrapper {
+        display: none;
+    }
+
+    /* Quando a classe 'open' é adicionada via JS, mostra */
+    .secondary-filters-wrapper.open {
+        display: block;
+        animation: slideDownFade 0.3s ease;
+    }
+}
+
+@keyframes slideDownFade {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- LAYOUT BLOG (SIDEBAR ESQUERDA + GRID) --- */
+
+.site-content-blog {
+    padding: 40px 0;
+    background: #f4f6f8;
+}
+
+.container-flex {
+    display: flex;
+    gap: 40px; /* Espaço entre Sidebar e Posts */
+    align-items: flex-start;
+}
+
+/* Sidebar na Esquerda */
+.blog-sidebar {
+    flex: 0 0 300px; /* Largura fixa de 300px */
+    width: 300px;
+    /* Como está antes no HTML, já fica na esquerda automaticamente */
+}
+
+/* Área Principal */
+.blog-main {
+    flex: 1; /* Ocupa o restante do espaço */
+    min-width: 0;
+}
+
+.blog-header {
+    margin-bottom: 30px;
+    border-bottom: 1px solid #e1e4e8;
+    padding-bottom: 15px;
+}
+
+/* --- GRID DE POSTS (2 Colunas) --- */
+.blog-grid-layout {
+    display: grid;
+    /* Cria 2 colunas iguais. Para 3 colunas, mude para repeat(3, 1fr) */
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 25px; /* Espaço entre os cards */
+}
+
+/* Cards */
+.blog-card {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    border: 1px solid #e1e4e8;
+    transition: 0.3s;
+    display: flex;
+    flex-direction: column; /* Garante que conteúdo flua verticalmente */
+    height: 100%; /* Faz todos os cards terem a mesma altura */
+}
+
+.blog-card:hover { 
+    transform: translateY(-5px); 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08); 
+    border-color: var(--primary);
+}
+
+.blog-thumb {
+    height: 200px; /* Altura fixa para imagem */
+    overflow: hidden;
+    position: relative;
+}
+
+.blog-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Garante que a imagem preencha sem distorcer */
+    transition: 0.3s;
+}
+
+.blog-card:hover .blog-thumb img {
+    transform: scale(1.05); /* Zoom suave ao passar o mouse */
+}
+
+.blog-content { 
+    padding: 20px; 
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.blog-title { 
+    font-size: 1.2rem; 
+    margin: 0 0 10px 0;
+    line-height: 1.4;
+}
+
+.blog-excerpt {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 15px;
+    flex-grow: 1; /* Empurra o botão para o fundo */
+}
+
+.btn-read-more {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+}
+
+/* --- RESPONSIVO --- */
+
+@media (max-width: 991px) {
+    .container-flex {
+        flex-direction: column; /* Empilha no mobile */
+    }
+    
+    .blog-sidebar {
+        width: 100%;
+        flex: none;
+        order: 2; /* Joga sidebar para BAIXO do conteúdo no mobile */
+        margin-top: 40px;
+    }
+    
+    .blog-main {
+        width: 100%;
+        order: 1;
+    }
+    
+    .blog-grid-layout {
+        /* No tablet/celular, vira 1 coluna só */
+        grid-template-columns: 1fr; 
+    }
+}
+
+/* --- ESTILOS DO BLOG --- */
+.site-content-blog {
+    padding: 40px 0;
+    background: #f4f6f8;
+}
+
+/* Layout (Conteúdo Esquerda / Sidebar Direita) */
+.blog-main {
+    flex: 2; /* Ocupa 2/3 */
+    min-width: 0; /* Evita quebra de layout */
+}
+
+.blog-sidebar {
+    flex: 1; /* Ocupa 1/3 */
+    max-width: 350px;
+}
+
+/* Cards da Listagem */
+.blog-card {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    border: 1px solid #e1e4e8;
+    transition: 0.3s;
+}
+.blog-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+
+.blog-thumb img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    display: block;
+}
+
+.blog-content { padding: 25px; }
+
+.blog-meta {
+    font-size: 0.85rem;
+    color: #999;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+.blog-meta .cat a { color: var(--primary); text-decoration: none; }
+
+.blog-title { margin: 0 0 15px 0; font-size: 1.6rem; }
+.blog-title a { color: var(--dark); text-decoration: none; }
+.blog-title a:hover { color: var(--primary); }
+
+.btn-read-more {
+    display: inline-block;
+    margin-top: 15px;
+    color: var(--primary);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/* Single Post (Página Interna) */
+.single-article {
+    background: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    border: 1px solid #e1e4e8;
+    margin-bottom: 40px;
+}
+.single-thumb { margin: 30px 0; }
+.single-thumb img { width: 100%; height: auto; border-radius: 6px; }
+
+/* Sidebar Widgets */
+.widget-area .widget-wrapper, .widget-box {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid #e1e4e8;
+    margin-bottom: 25px;
+}
+.widget-title, .widget-box h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    border-left: 3px solid var(--primary);
+    padding-left: 10px;
+    margin-bottom: 20px;
+    color: var(--dark);
+}
+.widget-area ul { list-style: none; padding: 0; margin: 0; }
+.widget-area li {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+.widget-area a { color: #666; text-decoration: none; }
+.widget-area a:hover { color: var(--primary); }
+
+/* Comentários */
+.comments-area {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid #e1e4e8;
+}
+
+/* Responsivo */
+@media (max-width: 991px) {
+    .container-flex { flex-direction: column; }
+    .blog-sidebar { max-width: 100%; margin-top: 30px; }
+}
+
+/* --- TÍTULOS DE SEÇÃO (Estilo Portal) --- */
+.section-subtitle {
+    font-size: 1.3rem;       /* Aumentei um pouco */
+    font-weight: 800;        /* Negrito forte */
+    color: #333;             /* Cor escura (quase preto) para contraste */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;   /* Espaçamento leve entre letras */
+    
+    /* O Detalhe Visual (Barra Colorida) */
+    border-left: 5px solid var(--primary); 
+    padding-left: 15px;      /* Afasta o texto da barra */
+    
+    margin-top: 50px;        /* Espaço acima (separa do bloco anterior) */
+    margin-bottom: 20px;     /* Espaço abaixo (separa dos cards) */
+    display: flex;
+    align-items: center;
+}
+
+/* Ajuste para o primeiro título não ficar com margem gigante se não precisar */
+.profiles-section h4:first-of-type {
+    margin-top: 20px;
+}
+
+
 
