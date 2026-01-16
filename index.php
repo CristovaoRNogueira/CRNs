@@ -1,103 +1,107 @@
 <?php get_header(); ?>
 
-<section class="home-hero">
+<section class="hero-split">
     <div class="container">
-        <div class="hero-grid">
-            <?php 
-            $hero = new WP_Query( array( 'post_type' => 'review', 'posts_per_page' => 3, 'ignore_sticky_posts' => 1 ));
-            if ( $hero->have_posts() ) : $i = 0; while ( $hero->have_posts() ) : $hero->the_post(); $i++;
-                $bg_url = get_the_post_thumbnail_url(get_the_ID(), 'large');
-                $class = ($i == 1) ? 'hero-main' : 'hero-sub'; 
-            ?>
-                <div class="<?php echo $class; ?>" style="background-image: url('<?php echo $bg_url; ?>');">
-                    <div class="hero-overlay"></div>
-                    <div class="hero-content">
-                        <?php $cats = get_the_terms( get_the_ID(), 'tipo_produto' ); if($cats) echo '<span class="hero-cat">'.$cats[0]->name.'</span>'; ?>
-                        <h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-                        <?php if($i == 1): ?><p class="hero-excerpt"><?php echo wp_trim_words( get_the_excerpt(), 15 ); ?></p><?php endif; ?>
-                    </div>
+        <div class="split-wrapper">
+            
+            <div class="split-content">
+                <span class="badge-hero">Bem-vindo ao <?php bloginfo('name'); ?></span>
+                
+                <h1>Descubra qual é o <br><span class="highlight-text">Melhor Eletrônico</span> para você</h1>
+                
+                <p class="hero-description">
+                    Nós testamos e comparamos os principais lançamentos de <strong>Notebooks</strong>, <strong>Smartphones</strong> e <strong>Periféricos</strong>. 
+                    Não gaste seu dinheiro errado: confira nossas análises técnicas, guias de compra e encontre o menor preço do dia.
+                </p>
+
+                <div class="hero-buttons">
+                    <a href="<?php echo site_url('/ofertas'); ?>" class="btn-hero-primary">
+                        <span class="dashicons dashicons-tag"></span> Ver Melhores Ofertas
+                    </a>
+                    
+                    <a href="#" target="_blank" class="btn-hero-whatsapp">
+                        <span class="dashicons dashicons-whatsapp"></span> Participe dos Grupos
+                    </a>
                 </div>
-            <?php endwhile; wp_reset_postdata(); endif; ?>
+                
+                <p class="hero-note">Receba descontos reais em tempo real no seu celular.</p>
+            </div>
+
+            <div class="split-visuals">
+                <div class="mini-grid">
+                    <?php 
+                    // Pega os 3 últimos posts
+                    $hero = new WP_Query( array( 'post_type' => 'review', 'posts_per_page' => 3, 'ignore_sticky_posts' => 1 ));
+                    if ( $hero->have_posts() ) : $i = 0; while ( $hero->have_posts() ) : $hero->the_post(); $i++;
+                        $bg_url = get_the_post_thumbnail_url(get_the_ID(), 'large');
+                        // O primeiro é grande (Main), os outros 2 são pequenos (Sub)
+                        $class = ($i == 1) ? 'visual-main' : 'visual-sub'; 
+                    ?>
+                        <div class="<?php echo $class; ?>" style="background-image: url('<?php echo $bg_url; ?>');">
+                            <a href="<?php the_permalink(); ?>" class="visual-link">
+                                <div class="visual-overlay">
+                                    <?php $cats = get_the_terms( get_the_ID(), 'tipo_produto' ); if($cats) echo '<span class="visual-cat">'.$cats[0]->name.'</span>'; ?>
+                                    <h3><?php echo wp_trim_words( get_the_title(), 8 ); ?></h3>
+                                </div>
+                            </a>
+                        </div>
+                    <?php endwhile; wp_reset_postdata(); endif; ?>
+                </div>
+            </div>
+
         </div>
     </div>
 </section>
 
 <section class="profiles-section" style="margin-bottom:50px;">
     <div class="container">
-        <h3 class="section-title">Encontre o ideal para você</h3>
-        
         <h4 style="margin-bottom:15px; color:#666; font-size:0.9rem; text-transform:uppercase;">Notebooks</h4>
         <div class="profile-grid">
             <a href="<?php echo site_url('/ofertas/?filtro_cat=notebooks&classificacao=de-entrada'); ?>" class="profile-card">
-                <span class="dashicons dashicons-book"></span>
-                <span>Estudos / Básico</span>
+                <span class="dashicons dashicons-book"></span><span>Estudos / Básico</span>
             </a>
             <a href="<?php echo site_url('/ofertas/?filtro_cat=notebooks&classificacao=intermediario'); ?>" class="profile-card">
-                <span class="dashicons dashicons-laptop"></span>
-                <span>Trabalho / Intermediário</span>
+                <span class="dashicons dashicons-laptop"></span><span>Trabalho</span>
             </a>
             <a href="<?php echo site_url('/ofertas/?filtro_cat=notebooks&classificacao=gamers'); ?>" class="profile-card highlight">
-                <span class="dashicons dashicons-games"></span>
-                <span>Gamers</span>
+                <span class="dashicons dashicons-games"></span><span>Gamers</span>
             </a>
             <a href="<?php echo site_url('/ofertas/?filtro_cat=notebooks&classificacao=premium'); ?>" class="profile-card">
-                <span class="dashicons dashicons-star-filled"></span>
-                <span>Premium / Ultrafinos</span>
-            </a>
-            <a href="<?php echo site_url('/ofertas/?filtro_cat=notebooks&classificacao=2-em-1'); ?>" class="profile-card">
-                <span class="dashicons dashicons-tablet"></span>
-                <span>2 em 1</span>
+                <span class="dashicons dashicons-star-filled"></span><span>Premium</span>
             </a>
         </div>
 
         <h4 style="margin-bottom:15px; margin-top:30px; color:#666; font-size:0.9rem; text-transform:uppercase;">Smartphones</h4>
         <div class="profile-grid">
             <a href="<?php echo site_url('/ofertas/?filtro_cat=smartphones&classificacao=custo-beneficio'); ?>" class="profile-card">
-                <span class="dashicons dashicons-money"></span>
-                <span>Custo-Benefício</span>
+                <span class="dashicons dashicons-money"></span><span>Custo-Benefício</span>
             </a>
             <a href="<?php echo site_url('/ofertas/?filtro_cat=smartphones&classificacao=top-de-linha'); ?>" class="profile-card">
-                <span class="dashicons dashicons-awards"></span>
-                <span>Top de Linha</span>
+                <span class="dashicons dashicons-awards"></span><span>Top de Linha</span>
             </a>
             <a href="<?php echo site_url('/ofertas/?filtro_cat=smartphones&classificacao=melhores-cameras'); ?>" class="profile-card">
-                <span class="dashicons dashicons-camera"></span>
-                <span>Melhores Câmeras</span>
+                <span class="dashicons dashicons-camera"></span><span>Câmeras</span>
             </a>
-             <a href="<?php echo site_url('/ofertas/?filtro_cat=smartphones&classificacao=gamers'); ?>" class="profile-card highlight">
-                <span class="dashicons dashicons-games"></span>
-                <span>Gamers</span>
+            <a href="<?php echo site_url('/ofertas/?filtro_cat=smartphones&classificacao=gamers'); ?>" class="profile-card highlight">
+                <span class="dashicons dashicons-games"></span><span>Gamers</span>
             </a>
         </div>
-
+        
         <h4 style="margin-bottom:15px; margin-top:30px; color:#666; font-size:0.9rem; text-transform:uppercase;">Impressoras</h4>
         <div class="profile-grid">
             <a href="<?php echo site_url('/ofertas/?filtro_cat=impressoras&classificacao=multifuncional'); ?>" class="profile-card">
-                <span class="dashicons dashicons-printer"></span>
-                <span>Multifuncional</span>
+                <span class="dashicons dashicons-printer"></span><span>Multifuncional</span>
             </a>
-            <a href="<?php echo site_url('/ofertas/?filtro_cat=impressoras&classificacao=colorida'); ?>" class="profile-card">
-                <span class="dashicons dashicons-art"></span>
-                <span>Colorida</span>
-            </a>
-            <a href="<?php echo site_url('/ofertas/?filtro_cat=impressoras&classificacao=preto-e-branco'); ?>" class="profile-card">
-                <span class="dashicons dashicons-media-text"></span>
-                <span>Preto e Branco</span>
-            </a>
-            <a href="<?php echo site_url('/ofertas/?filtro_cat=impressoras&classificacao=para-empresa'); ?>" class="profile-card highlight">
-                <span class="dashicons dashicons-building"></span>
-                <span>Para Empresa</span>
-            </a>
-            <a href="<?php echo site_url('/ofertas/?filtro_cat=impressoras&classificacao=para-casa-e-foto'); ?>" class="profile-card">
-                <span class="dashicons dashicons-camera"></span>
-                <span>Para Casa e Foto</span>
+            <a href="<?php echo site_url('/ofertas/?filtro_cat=impressoras&classificacao=tanque-de-tinta'); ?>" class="profile-card">
+                <span class="dashicons dashicons-admin-tint"></span><span>Tanque de Tinta</span>
             </a>
             <a href="<?php echo site_url('/ofertas/?filtro_cat=impressoras&classificacao=wifi'); ?>" class="profile-card">
-                <span class="dashicons dashicons-wifi"></span>
-                <span>Wi-Fi</span>
+                <span class="dashicons dashicons-wifi"></span><span>Wi-Fi</span>
+            </a>
+            <a href="<?php echo site_url('/ofertas/?filtro_cat=impressoras&classificacao=escritorio'); ?>" class="profile-card highlight">
+                <span class="dashicons dashicons-building"></span><span>Escritório</span>
             </a>
         </div>
-
     </div>
 </section>
 
@@ -106,7 +110,7 @@
         <main id="main" class="site-main">
             <div class="container">
                 <header class="section-header-flex">
-                    <h2 class="section-title-lg">Últimos Lançamentos</h2>
+                    <h2 class="section-title-lg">Últimas Análises</h2>
                     <a href="<?php echo site_url('/ofertas'); ?>" class="btn-ver-mais">Ver tudo &rarr;</a>
                 </header>
 

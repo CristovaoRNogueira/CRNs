@@ -700,4 +700,335 @@ img { max-width: 100%; height: auto; }
 }
 
 
+/* --- HERO SPLIT SECTION --- */
+.hero-split {
+    padding: 40px 0 60px 0;
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 40px;
+}
+
+.split-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Metade Texto, Metade Imagens */
+    gap: 40px;
+    align-items: center;
+}
+
+/* Coluna Esquerda: Texto */
+.badge-hero {
+    display: inline-block;
+    background: #eef2f7;
+    color: var(--primary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 50px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.split-content h1 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    margin: 0 0 20px 0;
+    color: var(--dark);
+}
+
+.highlight-text {
+    color: var(--primary);
+    position: relative;
+}
+.highlight-text::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 85, 0, 0.15);
+    z-index: -1;
+}
+
+.hero-description {
+    font-size: 1.1rem;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    max-width: 500px;
+}
+
+/* Botões do Hero */
+.hero-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.btn-hero-primary {
+    background: var(--primary);
+    color: #fff;
+    padding: 12px 25px;
+    border-radius: 6px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+    box-shadow: 0 4px 10px rgba(255,85,0,0.3);
+}
+.btn-hero-primary:hover {
+    background: #e04b00;
+    transform: translateY(-2px);
+    color: #fff;
+}
+
+.btn-hero-whatsapp {
+    background: #25D366; /* Verde Oficial Zap */
+    color: #fff;
+    padding: 12px 25px;
+    border-radius: 6px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+    box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+}
+.btn-hero-whatsapp:hover {
+    background: #128C7E;
+    transform: translateY(-2px);
+    color: #fff;
+}
+
+.hero-note {
+    font-size: 0.85rem;
+    color: #999;
+    margin-top: 10px;
+}
+
+
+/* Coluna Direita: Grid Visual (Slides Estáticos) */
+.mini-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 200px 200px; /* Altura fixa */
+    gap: 10px;
+}
+
+.visual-main {
+    grid-row: 1 / 3; /* Ocupa altura total esquerda */
+    background-size: cover;
+    background-position: center;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.visual-sub {
+    background-size: cover;
+    background-position: center;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.visual-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    color: #fff;
+}
+
+.visual-overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100%;
+}
+
+.visual-cat {
+    background: var(--primary);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    align-self: flex-start;
+    margin-bottom: 5px;
+}
+
+.visual-overlay h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    line-height: 1.3;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+.visual-sub .visual-overlay h3 { font-size: 0.9rem; }
+
+
+/* RESPONSIVO */
+@media (max-width: 991px) {
+    .split-wrapper {
+        grid-template-columns: 1fr; /* Empilha no mobile */
+        gap: 30px;
+    }
+    
+    .split-content {
+        text-align: center;
+        order: 1; /* Texto vem primeiro */
+    }
+    
+    .hero-buttons {
+        justify-content: center;
+    }
+    
+    .hero-description {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .split-visuals {
+        order: 2; /* Imagens em baixo */
+    }
+    
+    .mini-grid {
+        /* No mobile, talvez 1 coluna ou manter grid pequeno */
+        grid-template-rows: 180px 180px; 
+    }
+}
+
+/* --- FOOTER PROFISSIONAL --- */
+.site-footer {
+    background-color: #1a1a1a; /* Fundo Escuro */
+    color: #b0b0b0; /* Texto cinza claro */
+    padding: 60px 0 0 0;
+    font-size: 0.95rem;
+    margin-top: 50px;
+}
+
+.footer-widgets {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1.5fr; /* Colunas laterais maiores */
+    gap: 40px;
+    padding-bottom: 50px;
+    border-bottom: 1px solid #333;
+}
+
+.footer-col h3 {
+    color: #fff;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Coluna 1: Marca */
+.text-logo-footer {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    display: block;
+    margin-bottom: 15px;
+}
+.text-logo-footer span { color: var(--primary); }
+
+.footer-desc {
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.footer-social {
+    display: flex;
+    gap: 15px;
+}
+.footer-social a {
+    color: #fff;
+    background: #333;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+    text-decoration: none;
+}
+.footer-social a:hover {
+    background: var(--primary);
+    transform: translateY(-3px);
+}
+
+/* Listas de Links (Menu e Categorias) */
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.footer-links li {
+    margin-bottom: 10px;
+}
+.footer-links a {
+    color: #b0b0b0;
+    text-decoration: none;
+    transition: 0.2s;
+    display: inline-block;
+}
+.footer-links a:hover {
+    color: #fff;
+    transform: translateX(5px); /* Efeito de mover para a direita */
+}
+
+/* Coluna 4: Aviso Legal */
+.affiliate-notice {
+    background: #252525;
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 3px solid var(--primary);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+.affiliate-notice p { margin-bottom: 10px; }
+.affiliate-notice p:last-child { margin-bottom: 0; }
+
+/* Rodapé Inferior (Copyright) */
+.site-info {
+    padding: 25px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+/* Responsivo */
+@media (max-width: 991px) {
+    .footer-widgets {
+        grid-template-columns: 1fr 1fr; /* 2 colunas no tablet */
+    }
+}
+
+@media (max-width: 600px) {
+    .footer-widgets {
+        grid-template-columns: 1fr; /* 1 coluna no celular */
+        gap: 30px;
+    }
+    .site-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+}
+
+
 
