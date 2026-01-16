@@ -59,9 +59,6 @@ img { max-width: 100%; height: auto; }
 .btn-header-cta { background: var(--orange); color: #fff !important; padding: 8px 20px; border-radius: 50px; font-weight: bold; font-size: 0.9rem; }
 .btn-header-cta:hover { background: #e04b00; text-decoration: none; }
 
-/* Menu Mobile (Hambúrguer) */
-.menu-toggle { display: none; background: transparent; border: none; font-size: 1.5rem; color: var(--dark); cursor: pointer; }
-
 /* 5. Blog Grid (Home) */
 .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; margin: 40px 0; }
 .grid-item { background: var(--white); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: 0.3s; display: flex; flex-direction: column; }
@@ -458,6 +455,249 @@ img { max-width: 100%; height: auto; }
     .hero-main h2 { font-size: 1.5rem; }
 }
 
+/* --- PROFILE GRID (HOME) --- */
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.profile-card {
+    background: #fff;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    color: var(--dark);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.profile-card .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: #999;
+    transition: 0.3s;
+}
+
+.profile-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.profile-card:hover .dashicons {
+    color: var(--primary);
+}
+
+.profile-card.highlight {
+    background: #fff;
+    border-color: #ff5500;
+    color: #ff5500;
+}
+.profile-card.highlight .dashicons {
+    color: #ff5500;
+}
+.profile-card.highlight:hover {
+    background: #ff5500;
+    color: #fff;
+}
+.profile-card.highlight:hover .dashicons {
+    color: #fff;
+}
+
+/* --- HEADER GERAL --- */
+.site-header {
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: relative;
+    z-index: 999;
+}
+
+.header-main {
+    padding: 15px 0;
+}
+
+.header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap; /* Permite quebrar linha no mobile */
+}
+
+/* Logo */
+.text-logo {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--primary);
+    text-decoration: none;
+    line-height: 1;
+}
+.text-logo span { color: var(--dark); }
+
+/* Busca */
+.header-search {
+    flex: 1; /* Ocupa o espaço sobrando no desktop */
+    max-width: 600px;
+}
+
+.search-form-portal {
+    position: relative;
+    display: flex;
+}
+
+.search-field {
+    width: 100%;
+    padding: 10px 45px 10px 20px;
+    border: 2px solid #eee;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: 0.3s;
+    background: #f9f9f9;
+}
+
+.search-field:focus {
+    border-color: var(--primary);
+    background: #fff;
+}
+
+.search-submit {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-submit .dashicons { font-size: 18px; width: 18px; height: 18px; }
+
+/* Botão Ofertas */
+.btn-header-cta {
+    background: linear-gradient(45deg, #ff5500, #ff7700);
+    color: #fff !important;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: 0.3s;
+}
+.btn-header-cta:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(255,85,0,0.3); }
+
+/* Toggle Hambúrguer (Escondido no Desktop) */
+.menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+}
+.menu-toggle .bar {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: var(--dark);
+    margin: 5px 0;
+    border-radius: 2px;
+    transition: 0.3s;
+}
+
+/* Navegação Desktop */
+.main-navigation {
+    background: var(--primary);
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+.main-navigation ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+.main-navigation a {
+    color: #fff;
+    padding: 12px 20px;
+    display: block;
+    font-weight: 500;
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+.main-navigation a:hover { opacity: 1; background: rgba(0,0,0,0.05); }
+
+/* --- VERSÃO MOBILE (Menor que 992px) --- */
+@media (max-width: 991px) {
+    
+    /* Reordenar Elementos */
+    .header-search {
+        order: 3; /* Joga a busca para a última linha */
+        width: 100%; /* Ocupa largura total */
+        max-width: 100%;
+        margin-top: 10px;
+    }
+    
+    .site-branding { flex: 1; } /* Logo ocupa espaço à esquerda */
+    
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    /* Mostrar Toggle */
+    .menu-toggle { display: block; }
+    
+    /* Esconder botão de ofertas no mobile muito pequeno se quiser (opcional) */
+    /* @media (max-width: 400px) { .btn-header-cta { display: none; } } */
+
+    /* Menu Mobile (Gaveta) */
+    .main-navigation {
+        display: none; /* Escondido por padrão */
+        background: #fff;
+        border-top: 1px solid #eee;
+    }
+    
+    .main-navigation.toggled {
+        display: block;
+        animation: slideDownMenu 0.3s ease;
+    }
+
+    .main-navigation ul {
+        flex-direction: column;
+        text-align: left;
+    }
+
+    .main-navigation a {
+        color: var(--dark);
+        border-bottom: 1px solid #f0f0f0;
+        padding: 15px;
+    }
+    .main-navigation a:hover { background: #f9f9f9; color: var(--primary); }
+}
+
+@keyframes slideDownMenu {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
 
 

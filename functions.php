@@ -39,14 +39,27 @@ function crns_sidebars(){
 
 if ( ! function_exists( 'wp_body_open' ) ){ function wp_body_open() { do_action( 'wp_body_open' ); } }
 
-/* --- CPT Review + Taxonomias --- */
+/* --- CPT Review + Taxonomias (ATUALIZADO) --- */
 function crns_register_review_cpt() {
     register_post_type( 'review', array(
         'labels' => array( 'name' => 'Reviews', 'singular_name' => 'Review', 'menu_name' => 'Reviews (Produtos)' ),
         'public' => true, 'has_archive' => true, 'menu_icon' => 'dashicons-cart', 'supports' => array( 'title', 'editor', 'thumbnail', 'excerpt', 'comments', 'custom-fields' ), 'show_in_rest' => true
     ));
+    
+    // Taxonomia: Marca
     register_taxonomy( 'marca', 'review', array( 'label' => 'Marcas', 'rewrite' => array( 'slug' => 'marca' ), 'hierarchical' => true, 'show_in_rest' => true ));
+    
+    // Taxonomia: Tipo de Produto (Notebook, Smartphone)
     register_taxonomy( 'tipo_produto', 'review', array( 'labels' => array( 'name' => 'Tipos de Produto', 'singular_name' => 'Tipo de Produto' ), 'rewrite' => array( 'slug' => 'categoria' ), 'hierarchical' => true, 'show_in_rest' => true, 'show_admin_column' => true ));
+
+    // NOVO: Taxonomia: Classificação (Gamer, Premium, Custo-Beneficio)
+    register_taxonomy( 'classificacao', 'review', array( 
+        'labels' => array( 'name' => 'Classificações / Perfis', 'singular_name' => 'Classificação' ), 
+        'rewrite' => array( 'slug' => 'perfil' ), 
+        'hierarchical' => true, 
+        'show_in_rest' => true,
+        'show_admin_column' => true 
+    ));
 }
 add_action( 'init', 'crns_register_review_cpt' );
 
@@ -81,7 +94,7 @@ function crns_get_standard_fields() {
     ];
 }
 
-/* --- META BOXES HÍBRIDAS (Fixos + Dinâmicos) --- */
+/* --- META BOXES HÍBRIDAS --- */
 function crns_add_product_meta_boxes() { add_meta_box( 'crns_product_details', 'Ficha Técnica do Produto', 'crns_product_meta_callback', 'review', 'normal', 'high' ); }
 add_action( 'add_meta_boxes', 'crns_add_product_meta_boxes' );
 
@@ -98,7 +111,7 @@ function crns_product_meta_callback( $post ) {
     }
     echo '</div></div>';
 
-    // 2. CAMPOS PREDEFINIDOS (Agrupados)
+    // 2. CAMPOS PREDEFINIDOS
     $all_standards = crns_get_standard_fields();
     echo '<div style="background:#fff; padding:15px; margin-bottom:20px; border:1px solid #ccd0d4;">';
     echo '<h4 style="margin-top:0; border-bottom:1px solid #ccc; padding-bottom:10px;">📋 Campos Padrões (Preencha conforme a categoria)</h4>';
@@ -114,8 +127,7 @@ function crns_product_meta_callback( $post ) {
     }
     echo '</div>';
 
-    // 3. CAMPOS DINÂMICOS (Repetidor)
-    // Recupera metas que começam com "_spec_"
+    // 3. CAMPOS DINÂMICOS
     $all_meta = get_post_meta($post->ID);
     $dynamic_specs = [];
     foreach($all_meta as $key => $val) {
@@ -127,9 +139,7 @@ function crns_product_meta_callback( $post ) {
 
     echo '<div style="background:#fff; padding:15px; border:1px solid #ccd0d4;">';
     echo '<h4 style="margin-top:0;">✨ Campos Extras (Dinâmicos)</h4>';
-    echo '<p style="font-size:12px; color:#666;">Use para coisas específicas (ex: "Resistência à Água", "RGB", "DPI").</p>';
     echo '<div id="specs-wrapper">';
-    
     foreach($dynamic_specs as $spec) {
         echo '<div class="spec-row" style="display:flex; gap:10px; margin-bottom:10px;">';
         echo '<input type="text" name="spec_names[]" value="'.esc_attr($spec['label']).'" placeholder="Nome" style="width:40%">';
@@ -140,12 +150,11 @@ function crns_product_meta_callback( $post ) {
     echo '</div>';
     echo '<button type="button" class="button button-secondary" id="add-spec-row">+ Adicionar Campo Extra</button>';
     echo '</div>';
-
     ?>
     <script>
     jQuery(document).ready(function($){
         $('#add-spec-row').click(function(){
-            $('#specs-wrapper').append('<div class="spec-row" style="display:flex; gap:10px; margin-bottom:10px;"><input type="text" name="spec_names[]" placeholder="Nome (ex: Cor)" style="width:40%"> <input type="text" name="spec_values[]" placeholder="Valor" style="width:50%"> <button type="button" class="button remove-row">X</button></div>');
+            $('#specs-wrapper').append('<div class="spec-row" style="display:flex; gap:10px; margin-bottom:10px;"><input type="text" name="spec_names[]" placeholder="Nome" style="width:40%"> <input type="text" name="spec_values[]" placeholder="Valor" style="width:50%"> <button type="button" class="button remove-row">X</button></div>');
         });
         $(document).on('click', '.remove-row', function(){ $(this).parent('.spec-row').remove(); });
     });
@@ -156,22 +165,21 @@ function crns_product_meta_callback( $post ) {
 function crns_save_product_data( $post_id ) {
     if ( ! isset( $_POST['crns_product_meta_nonce'] ) || ! wp_verify_nonce( $_POST['crns_product_meta_nonce'], 'crns_save_product_data' ) ) return;
     
-    // 1. Salva Dados de Venda
-    $sales = ['_crns_price', '_crns_old_price', '_crns_rating', '_crns_affiliate_link'];
-    foreach($sales as $f) { if(isset($_POST[$f])) update_post_meta($post_id, $f, sanitize_text_field($_POST[$f])); }
+    // Salva Venda
+    foreach(['_crns_price', '_crns_old_price', '_crns_rating', '_crns_affiliate_link'] as $f) { 
+        if(isset($_POST[$f])) update_post_meta($post_id, $f, sanitize_text_field($_POST[$f])); 
+    }
 
-    // 2. Salva Campos Padrões
-    $standards = crns_get_standard_fields();
-    foreach($standards as $group) {
+    // Salva Padrões
+    foreach(crns_get_standard_fields() as $group) {
         foreach($group as $key => $label) {
             if(isset($_POST[$key])) update_post_meta($post_id, $key, sanitize_text_field($_POST[$key]));
         }
     }
 
-    // 3. Salva Campos Dinâmicos
+    // Salva Dinâmicos
     global $wpdb;
     $wpdb->query( $wpdb->prepare("DELETE FROM $wpdb->postmeta WHERE post_id = %d AND meta_key LIKE '_spec_%'", $post_id) );
-
     if ( isset($_POST['spec_names']) && isset($_POST['spec_values']) ) {
         $names = $_POST['spec_names'];
         $values = $_POST['spec_values'];
@@ -186,24 +194,21 @@ function crns_save_product_data( $post_id ) {
 }
 add_action( 'save_post', 'crns_save_product_data' );
 
-/* --- FUNÇÃO CORRETORA DE LABEL --- */
+/* --- FORMATAR LABEL --- */
 function crns_format_spec_label( $meta_key ) {
-    // Remove prefixos conhecidos
     $clean = str_replace(['_spec_', '_crns_'], '', $meta_key);
-    // Remove sufixos técnicos se houver (ex: camera_main -> Camera Main)
     $clean = str_replace(['_', '-'], ' ', $clean);
-    // Tradução manual de slugs comuns para ficar bonito no filtro
+    
     $map = [
         'cpu' => 'Processador', 'ram' => 'Memória RAM', 'storage' => 'Armazenamento',
         'screen' => 'Tela', 'os' => 'Sistema Operacional', 'gpu' => 'Placa de Vídeo',
         'camera main' => 'Câmera Traseira', 'camera front' => 'Câmera Frontal',
         'battery' => 'Bateria', 'print tech' => 'Tipo de Impressão',
         'print color' => 'Cor de Impressão', 'print conn' => 'Conectividade',
-        'voltage' => 'Voltagem'
+        'voltage' => 'Voltagem', 'weight' => 'Peso'
     ];
     
     if(array_key_exists($clean, $map)) return $map[$clean];
-    
     return ucwords($clean);
 }
 
@@ -211,67 +216,42 @@ function crns_format_spec_label( $meta_key ) {
 function crns_get_sidebar_filters( $term_id = 0 ) {
     global $wpdb;
     
-    // 1. Se estamos numa categoria, pegamos os IDs dos produtos dela
     $post_ids = [];
     if ( $term_id > 0 ) {
-        // Pega IDs dos posts que estão na taxonomia 'tipo_produto' com o ID atual
         $post_ids = get_objects_in_term( $term_id, 'tipo_produto' );
     }
 
-    // Se não houver produtos na categoria, não exibe filtros dinâmicos
     if ( $term_id > 0 && empty($post_ids) ) {
         return [];
     }
 
-    // 2. Monta a Query para buscar Meta Keys usadas nesses produtos
-    $query = "
-        SELECT DISTINCT meta_key 
-        FROM {$wpdb->postmeta} 
-        WHERE meta_value != ''
-    ";
-
-    // Filtra pelos IDs encontrados (se houver categoria definida)
+    $query = "SELECT DISTINCT meta_key FROM {$wpdb->postmeta} WHERE meta_value != ''";
+    
     if ( !empty($post_ids) ) {
         $ids_string = implode(',', array_map('intval', $post_ids));
         $query .= " AND post_id IN ($ids_string)";
     }
 
-    // Filtra apenas chaves que sejam specs (_crns_ ou _spec_)
-    // E exclui os campos de controle (preço, rating, etc)
-    $query .= "
-        AND (meta_key LIKE '_spec_%' OR meta_key LIKE '_crns_%')
-        AND meta_key NOT IN ('_crns_price', '_crns_old_price', '_crns_rating', '_crns_affiliate_link', '_edit_lock', '_edit_last', '_thumbnail_id', '_wp_page_template')
-    ";
+    $query .= " AND (meta_key LIKE '_spec_%' OR meta_key LIKE '_crns_%') AND meta_key NOT IN ('_crns_price', '_crns_old_price', '_crns_rating', '_crns_affiliate_link', '_edit_lock', '_edit_last', '_thumbnail_id', '_wp_page_template')";
 
     $keys = $wpdb->get_col($query);
     $filters = [];
 
     if($keys) {
         foreach($keys as $key) {
-            // 3. Para cada chave encontrada, busca os valores únicos (Opções do Filtro)
             $val_query = "SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value != ''";
-            
-            // Reforça o filtro por categoria também nos valores
             if ( !empty($post_ids) ) {
                 $val_query .= " AND post_id IN ($ids_string)";
             }
-            
-            $val_query .= " LIMIT 50"; // Limite de segurança
+            $val_query .= " LIMIT 50";
 
             $values = $wpdb->get_col( $wpdb->prepare($val_query, $key) );
             
-            // Só adiciona o filtro se houver valores
             if(!empty($values)) {
                 $label = crns_format_spec_label($key);
-                
-                // Gera o parâmetro de URL (remove _spec_ ou _crns_)
-                // Ex: _crns_ram -> f_ram
                 $clean_slug = str_replace(['_spec_', '_crns_'], '', $key);
                 $url_param = 'f_' . $clean_slug;
-                
-                // Ordena valores (ex: 4GB, 8GB...)
                 sort($values, SORT_NATURAL);
-
                 $filters[$url_param] = [
                     'label' => $label,
                     'options' => $values
@@ -282,28 +262,12 @@ function crns_get_sidebar_filters( $term_id = 0 ) {
     return $filters;
 }
 
-/* --- APLICAÇÃO DOS FILTROS NA QUERY (GLOBAL INTELIGENTE) --- */
+/* --- APLICAÇÃO DOS FILTROS NA QUERY (GLOBAL INTELIGENTE - ATUALIZADO) --- */
 function crns_filter_offer_query( $query ) {
-    // 1. Regras de Segurança:
-    // - Não roda no Admin
-    // - Só roda na Query Principal
-    if ( is_admin() || ! $query->is_main_query() ) {
-        return;
-    }
+    if ( is_admin() || ! $query->is_main_query() ) return;
+    if ( $query->is_page() ) return;
 
-    // 2. REGRA ANTI-404 (A Mágica):
-    // Se for uma Página Estática (como a página 'Ofertas'), NÃO aplicamos o filtro na query principal.
-    // Isso impede que o WordPress tente filtrar a PÁGINA em si e retorne 404.
-    // A página 'Ofertas' fará sua própria filtragem interna (WP_Query customizada).
-    if ( $query->is_page() ) {
-        return;
-    }
-
-    // 3. Onde aplicar os filtros?
-    // - Arquivo do Post Type 'review' (se tiver)
-    // - Taxonomia 'tipo_produto' (Categorias)
-    // - Taxonomia 'marca'
-    if ( is_post_type_archive('review') || is_tax('tipo_produto') || is_tax('marca') ) {
+    if ( is_post_type_archive('review') || is_tax('tipo_produto') || is_tax('marca') || is_tax('classificacao') ) {
         
         $meta_query = $query->get('meta_query');
         if( !is_array($meta_query) ) $meta_query = [];
@@ -314,17 +278,24 @@ function crns_filter_offer_query( $query ) {
             $meta_query[] = array( 'key' => '_crns_price', 'value' => array( $_GET['min_price'], $_GET['max_price'] ?: 999999 ), 'type' => 'NUMERIC', 'compare' => 'BETWEEN' );
         }
         
-        // Marca (apenas se não estivermos já na página da marca)
+        // Marca
         if ( !empty($_GET['marca']) && !is_tax('marca') ) {
-            $tax_query = array( array( 'taxonomy' => 'marca', 'field' => 'slug', 'terms' => $_GET['marca'] ) );
+            $tax_query = $query->get('tax_query') ?: [];
+            $tax_query[] = array( 'taxonomy' => 'marca', 'field' => 'slug', 'terms' => $_GET['marca'] );
             $query->set('tax_query', $tax_query);
         }
 
-        // Filtros Dinâmicos Híbridos
+        // NOVO: Classificação (Gamer, Premium, etc)
+        if ( !empty($_GET['classificacao']) && !is_tax('classificacao') ) {
+            $tax_query = $query->get('tax_query') ?: [];
+            $tax_query[] = array( 'taxonomy' => 'classificacao', 'field' => 'slug', 'terms' => $_GET['classificacao'] );
+            $query->set('tax_query', $tax_query);
+        }
+
+        // Filtros Dinâmicos
         foreach($_GET as $param => $values) {
             if (strpos($param, 'f_') === 0 && !empty($values)) {
                 $slug = str_replace('f_', '', $param);
-                
                 $mq = array('relation' => 'OR');
                 if(is_array($values)) {
                     foreach($values as $v) {
@@ -345,6 +316,25 @@ function crns_filter_offer_query( $query ) {
 }
 add_action( 'pre_get_posts', 'crns_filter_offer_query' );
 
+/* --- SEGURANÇA --- */
+function crns_remove_native_custom_fields() { remove_meta_box( 'postcustom', 'review', 'normal' ); }
+add_action( 'admin_menu', 'crns_remove_native_custom_fields' );
+
+/* --- SCRIPT DROPDOWN --- */
+function crns_filter_accordion_script() {
+    ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const triggers = document.querySelectorAll('.filter-group h4');
+        triggers.forEach(trigger => {
+            trigger.addEventListener('click', function() { this.parentElement.classList.toggle('active'); });
+        });
+    });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'crns_filter_accordion_script');
+
 // Schema e Shortcode
 function crns_add_review_schema() {
     if ( is_singular( 'review' ) ) {
@@ -355,25 +345,67 @@ function crns_add_review_schema() {
 add_action( 'wp_head', 'crns_add_review_schema' );
 function crns_compare_shortcode($atts) { return ''; } add_shortcode('comparar', 'crns_compare_shortcode');
 
-/* --- SCRIPT PARA FILTROS DROPDOWN (FOOTER) --- */
-function crns_filter_accordion_script() {
+/* --- BUSCAR CLASSIFICAÇÕES POR CATEGORIA (INTELIGENTE) --- */
+function crns_get_valid_classifications( $cat_slug = '' ) {
+    // Se não tiver categoria selecionada, retorna todas as classificações que têm posts
+    if ( empty($cat_slug) ) {
+        return get_terms(['taxonomy' => 'classificacao', 'hide_empty' => true]);
+    }
+
+    global $wpdb;
+
+    // Query SQL Avançada:
+    // 1. Busca termos da taxonomia 'classificacao' (t_class)
+    // 2. Que estejam associados a posts (tr_class)
+    // 3. Onde esses mesmos posts TAMBÉM estejam associados (tr_cat)
+    // 4. À categoria selecionada 'tipo_produto' (t_cat)
+    
+    $query = "
+        SELECT DISTINCT t_class.*
+        FROM {$wpdb->terms} t_class
+        INNER JOIN {$wpdb->term_taxonomy} tt_class ON t_class.term_id = tt_class.term_id
+        INNER JOIN {$wpdb->term_relationships} tr_class ON tt_class.term_taxonomy_id = tr_class.term_taxonomy_id
+        INNER JOIN {$wpdb->posts} p ON tr_class.object_id = p.ID
+        INNER JOIN {$wpdb->term_relationships} tr_cat ON p.ID = tr_cat.object_id
+        INNER JOIN {$wpdb->term_taxonomy} tt_cat ON tr_cat.term_taxonomy_id = tt_cat.term_taxonomy_id
+        INNER JOIN {$wpdb->terms} t_cat ON tt_cat.term_id = t_cat.term_id
+        WHERE tt_class.taxonomy = 'classificacao'
+        AND t_cat.slug = %s
+        AND p.post_status = 'publish'
+    ";
+
+    $results = $wpdb->get_results( $wpdb->prepare($query, $cat_slug) );
+    
+    return $results;
+}
+
+/* --- SCRIPT DO MENU MOBILE --- */
+function crns_mobile_menu_script() {
     ?>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const triggers = document.querySelectorAll('.filter-group h4');
-        
-        triggers.forEach(trigger => {
-            trigger.addEventListener('click', function() {
-                // Alterna a classe 'active' no pai (.filter-group)
-                this.parentElement.classList.toggle('active');
+        const toggleBtn = document.querySelector('.menu-toggle');
+        const nav = document.querySelector('.main-navigation');
+
+        if(toggleBtn && nav) {
+            toggleBtn.addEventListener('click', function() {
+                nav.classList.toggle('toggled');
+                
+                // Animação do ícone hambúrguer (X)
+                const expanded = toggleBtn.getAttribute('aria-expanded') === 'true' || false;
+                toggleBtn.setAttribute('aria-expanded', !expanded);
+                toggleBtn.classList.toggle('active');
             });
-        });
+        }
     });
     </script>
+    <style>
+        /* Estilo extra para transformar o hambúrguer em X */
+        .menu-toggle.active .bar:nth-child(2) { opacity: 0; }
+        .menu-toggle.active .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .menu-toggle.active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+    </style>
     <?php
 }
-add_action('wp_footer', 'crns_filter_accordion_script');
-
-
-
+add_action('wp_footer', 'crns_mobile_menu_script');
 
