@@ -1,8 +1,8 @@
 /*
 Theme Name: crns
-Theme URI: https://website.com/crns
+Theme URI: https://crnsistemas.com.br
 Author: Cristovao Rodrigues
-Author URI: https://website.com/crns
+Author URI: https://crnsistemas.com.br
 Description: Tema focado em afiliados e reviews de tecnologia.
 Requires at least: 5.6
 Tested up to: 6.0
@@ -38,7 +38,7 @@ html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}main{display:b
 }
 
 /* 3. Estilos Globais */
-body { background: var(--light); color: var(--dark); font-family: var(--font); margin:0; line-height:1.6; }
+body { background: var(--light); color: var(--dark); font-family: var(--font); margin:0; line-height:1.5; }
 a { color: var(--primary-dark); text-decoration: none; transition: 0.2s; }
 a:hover { color: var(--primary); }
 img { max-width: 100%; height: auto; }
@@ -77,8 +77,19 @@ img { max-width: 100%; height: auto; }
     width: 100%;
 }
 
-/* LOGO (Agora Branca) */
-.site-branding { flex-shrink: 0; z-index: 10; }
+/* LOGO */
+.site-branding { 
+    flex-shrink: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.site-title {
+    line-height: 1;
+}
+
 .site-title a { 
     font-size: 24px; 
     font-weight: 800; 
@@ -86,6 +97,20 @@ img { max-width: 100%; height: auto; }
     text-decoration: none; 
     text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
+/* Quando existe LOGO */
+.site-branding .custom-logo-link {
+    display: flex;
+    align-items: center;
+}
+
+.site-branding .custom-logo {
+    max-height: 48px;
+    width: auto;
+    height: auto;
+    display: block;
+}
+
 
 /* MENU DESKTOP (Ícones e Texto Brancos) */
 .desktop-nav-center { flex: 1; display: flex; justify-content: center; }
@@ -212,17 +237,7 @@ img { max-width: 100%; height: auto; }
         align-items: center;
     }
 
-    /* 2. LOGO (Centro Perfeito) */
-    .site-branding { 
-        order: 2; 
-        flex: 1; /* Ocupa todo o espaço do meio */
-        display: flex; 
-        justify-content: center; /* Centraliza */
-        align-items: center;
-    } 
-    .site-title a { font-size: 20px; }
-
-    /* 3. LUPA (Direita - Centralizada no Bloco) */
+       /* 3. LUPA (Direita - Centralizada no Bloco) */
     .header-actions { 
         order: 3; 
         width: 50px; /* Largura fixa igual ao sanduiche */
@@ -975,8 +990,21 @@ img { max-width: 100%; height: auto; }
         margin-top: 10px;
     }
     
-    .site-branding { flex: 1; } /* Logo ocupa espaço à esquerda */
+     /* Centralizar Logo */ 
+    .site-branding { 
+        order: 2;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        line-height: 1;
+        z-index: 10;
+    } 
     
+    /* Ações do Header (Botão Ofertas) */
     .header-actions {
         display: flex;
         align-items: center;
