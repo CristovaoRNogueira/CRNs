@@ -3,16 +3,33 @@
 require get_template_directory() . '/inc/customizer.php';
 
 function crns_load_scripts(){
+    // Carrega o CSS Principal
     wp_enqueue_style( 'crns-style', get_stylesheet_uri(), array(), filemtime( get_template_directory() . '/style.css' ), 'all' );
+    
+    // Carrega Fontes Google
     wp_enqueue_style( 'google-fonts', 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap', array(), null );
+    
+    // CARREGA OS ÍCONES 
+    wp_enqueue_style( 'dashicons' );
+    
+    // Scripts JS
     wp_enqueue_script( 'dropdown', get_template_directory_uri() . '/js/dropdown.js', array(), '1.0', true );
 }
 add_action( 'wp_enqueue_scripts', 'crns_load_scripts' );
 
+
 function crns_config(){
     $textdomain = 'crns';
     load_theme_textdomain( $textdomain, get_template_directory() . '/languages/' );
-    register_nav_menus( array( 'wp_devs_main_menu' => 'Main Menu', 'wp_devs_footer_menu' => 'Footer Menu' ) );
+    
+    // REGISTRO DOS MENUS (Atualizado)
+    register_nav_menus( array( 
+        'wp_devs_main_menu'   => 'Main Menu (Antigo)', 
+        'wp_devs_footer_menu' => 'Footer Menu',
+        'desktop_center'      => 'Menu Principal (Ícones)', // Usado no Desktop e Faixa 2 Mobile
+        'drawer_menu'         => 'Menu Gaveta (Lateral)'    // Usado no menu sanduíche
+    ) );
+
     add_theme_support( 'custom-header', array( 'height' => 225, 'width' => 1920 ) );
     add_theme_support( 'post-thumbnails' );
     add_theme_support( 'custom-logo', array( 'width' => 200, 'height' => 110, 'flex-height' => true, 'flex-width' => true ) );
@@ -25,6 +42,7 @@ function crns_config(){
     add_theme_support( 'wp-block-styles' );
 }
 add_action( 'after_setup_theme', 'crns_config', 0 );
+
 
 function crns_register_block_styles(){
     wp_register_style( 'crns-block-style', get_template_directory_uri() . '/block-style.css' );

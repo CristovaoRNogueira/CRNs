@@ -2,59 +2,90 @@
 <html <?php language_attributes(); ?>>
 <head>
     <meta charset="<?php bloginfo( 'charset' ); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php wp_head(); ?>
 </head>
+
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 
 <div id="page" class="site">
+
     <header id="masthead" class="site-header">
         
-        <div class="header-main">
+        <div class="header-main-bar">
             <div class="container">
-                <div class="header-row">
+                <div class="header-wrapper">
                     
+                    <button id="mobile-menu-trigger" class="mobile-toggle">
+                        <span class="dashicons dashicons-menu-alt3"></span>
+                    </button>
+
                     <div class="site-branding">
-                        <?php if( has_custom_logo() ) { the_custom_logo(); } else { ?>
-                            <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="text-logo">
-                                <?php bloginfo( 'name' ); ?><span>.tech</span>
-                            </a>
-                        <?php } ?>
+                        <?php if ( has_custom_logo() ) : ?>
+                            <?php the_custom_logo(); ?>
+                        <?php else : ?>
+                            <p class="site-title"><a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></p>
+                        <?php endif; ?>
                     </div>
 
-                    <div class="header-search">
-                        <form role="search" method="get" class="search-form-portal" action="<?php echo esc_url( home_url( '/' ) ); ?>">
-                            <input type="search" class="search-field" placeholder="O que você procura hoje?" value="<?php echo get_search_query(); ?>" name="s" autocomplete="off" />
-                            <button type="submit" class="search-submit" aria-label="Buscar">
-                                <span class="dashicons dashicons-search"></span>
-                            </button>
-                        </form>
-                    </div>
+                    <nav class="desktop-nav-center">
+                        <?php 
+                        wp_nav_menu( array( 
+                            'theme_location' => 'desktop_center',
+                            'container'      => false,
+                            'menu_class'     => 'icon-menu-list',
+                            'fallback_cb'    => false
+                        ) ); 
+                        ?>
+                    </nav>
 
                     <div class="header-actions">
-                        <a href="<?php echo home_url('/ofertas'); ?>" class="btn-header-cta">
-                            <span class="dashicons dashicons-tag"></span> Ofertas
-                        </a>
-                        
-                        <button class="menu-toggle" aria-controls="primary-menu" aria-expanded="false">
-                            <span class="bar"></span>
-                            <span class="bar"></span>
-                            <span class="bar"></span>
+                        <button id="search-toggle-btn" class="search-toggle-btn">
+                            <span class="dashicons dashicons-search"></span>
                         </button>
+                        
+                        <div id="search-expanded-bar" class="search-expanded-bar">
+                            <form role="search" method="get" class="search-form-expanded" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+                                <input type="search" class="search-input-field" placeholder="Pesquisar..." value="<?php echo get_search_query(); ?>" name="s" />
+                                <button type="submit" class="search-submit-btn"><span class="dashicons dashicons-search"></span></button>
+                                <button type="button" id="close-search-btn" class="close-search">&times;</button>
+                            </form>
+                        </div>
                     </div>
 
                 </div>
             </div>
         </div>
 
-        <nav id="site-navigation" class="main-navigation">
+        <div class="mobile-cat-strip">
             <div class="container">
-                <?php wp_nav_menu( array( 
-                    'theme_location' => 'wp_devs_main_menu', 
-                    'menu_id'        => 'primary-menu',
-                    'depth'          => 3 
-                ) ); ?>
+                <?php 
+                wp_nav_menu( array( 
+                    'theme_location' => 'desktop_center',
+                    'container'      => false,
+                    'menu_class'     => 'mobile-icon-scroll',
+                    'fallback_cb'    => false
+                ) ); 
+                ?>
             </div>
-        </nav>
+        </div>
+
     </header>
+
+    <div id="mobile-drawer" class="mobile-drawer">
+        <div class="drawer-header">
+            <span class="drawer-title">Menu</span>
+            <button id="close-drawer" class="close-btn">&times;</button>
+        </div>
+        <div class="drawer-content">
+            <?php 
+            wp_nav_menu( array( 
+                'theme_location' => 'drawer_menu', 
+                'container'      => false, 
+                'menu_class'     => 'drawer-menu-list' 
+            ) ); 
+            ?>
+        </div>
+    </div>
+    <div id="drawer-overlay" class="drawer-overlay"></div>

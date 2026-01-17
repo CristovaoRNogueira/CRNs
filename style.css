@@ -14,6 +14,12 @@ Text Domain: crns
 
 /* 1. Normalize & Reset Básico */
 /*! normalize.css v8.0.1 | MIT License */
+
+/* --- CORREÇÃO GLOBAL DE TAMANHOS (Box Sizing) --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}main{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button::-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type=checkbox],[type=radio]{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}template{display:none}[hidden]{display:none}
 
 /* 2. Variáveis de Identidade */
@@ -38,11 +44,326 @@ a:hover { color: var(--primary); }
 img { max-width: 100%; height: auto; }
 .container { max-width: 1140px; margin: 0 auto; padding: 0 15px; position: relative; }
 
-/* 4. Header & Navegação */
-.site-header { background: var(--white); box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: relative; z-index: 100; }
-.header-row { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; gap: 20px; }
-.text-logo { font-size: 24px; font-weight: 800; color: var(--primary); }
-.text-logo span { color: var(--dark); }
+/* --- HEADER FIXO E CORES --- */
+.site-header {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #00C5E5; /* MUDANÇA: Fundo Azul no Desktop também */
+    box-shadow: 0 4px 10px rgba(0,197,229,0.3); /* Sombra suave azulada */
+}
+
+/* FAIXA 1 (Desktop e Mobile agora unificados na cor) */
+.header-main-bar {
+    background: #00C5E5; /* Azul Ciano */
+    border-bottom: none; /* Remove borda cinza */
+}
+
+/* O Container segura o conteúdo no centro */
+.container {
+    max-width: 1140px; /* Largura padrão */
+    margin: 0 auto;    /* Centraliza na tela */
+    padding: 0 15px;   /* Margem de segurança nas laterais */
+}
+
+.header-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
+    gap: 20px;
+    position: relative;
+    width: 100%;
+}
+
+/* LOGO (Agora Branca) */
+.site-branding { flex-shrink: 0; z-index: 10; }
+.site-title a { 
+    font-size: 24px; 
+    font-weight: 800; 
+    color: #fff; /* Texto Branco */
+    text-decoration: none; 
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* MENU DESKTOP (Ícones e Texto Brancos) */
+.desktop-nav-center { flex: 1; display: flex; justify-content: center; }
+
+.icon-menu-list {
+    display: flex;
+    list-style: none;
+    margin: 0; padding: 0;
+    gap: 30px;
+}
+
+.icon-menu-list li a {
+    display: flex;
+    flex-direction: column; /* Ícone em cima */
+    align-items: center;
+    color: rgba(255,255,255,0.9); /* Branco com leve transparência */
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.2s;
+    line-height: 1.2;
+    text-align: center;
+}
+
+/* Ícone */
+.icon-menu-list li a span.dashicons {
+    font-size: 32px;  /* MAIOR */
+    width: 32px;      /* MAIOR */
+    height: 32px;     /* MAIOR */
+    margin-bottom: 6px;
+    color: #fff;
+    transition: 0.2s;
+    opacity: 0.95;
+}
+
+/* Hover no Menu (Fica 100% Branco e brilha) */
+.icon-menu-list li a:hover { 
+    color: #fff; 
+    transform: translateY(-2px); /* Leve subida */
+}
+.icon-menu-list li a:hover span.dashicons { 
+    opacity: 1; 
+    text-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+/* --- BUSCA E AÇÕES (DESKTOP: SEMPRE ABERTO) --- */
+.header-actions { 
+    position: relative; 
+    display: flex; 
+    align-items: center; 
+}
+
+/* 1. Esconde botão de lupa no Desktop */
+.search-toggle-btn {
+    display: none; 
+}
+
+/* 2. Barra de Busca Fixa e Visível no Desktop */
+.search-expanded-bar {
+    position: relative;
+    width: 300px; /* Largura fixa */
+    background: rgba(255,255,255,0.2); /* Fundo branco semitransparente */
+    border-radius: 50px;
+    display: flex; 
+    align-items: center;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.search-form-expanded { 
+    display: flex; 
+    width: 100%; 
+    align-items: center; 
+    position: relative; 
+}
+
+/* Input Desktop */
+.search-input-field {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    outline: none;
+    color: #fff; /* Texto branco */
+}
+
+.search-input-field::placeholder {
+    color: rgba(255,255,255,0.7); /* Placeholder claro */
+}
+
+/* Botão de Enviar (Lupa dentro da barra) */
+.search-submit-btn { 
+    background: transparent; 
+    color: #fff; 
+    border: none; 
+    width: 34px; height: 34px; 
+    cursor: pointer; 
+    display: flex; align-items: center; justify-content: center; 
+    margin-right: 5px;
+}
+
+/* Esconde botão de fechar no Desktop */
+.close-search { display: none; }
+
+/* Esconde elementos Mobile */
+.mobile-toggle, .mobile-cat-strip, .mobile-drawer, .drawer-overlay { display: none; }
+
+
+/* --- VERSÃO MOBILE (< 992px) --- */
+@media (max-width: 991px) {
+    
+    .header-wrapper {
+        height: 60px;
+        justify-content: space-between;
+    }
+
+    /* 1. SANDUÍCHE (Esquerda - Agora Centralizado no Bloco) */
+    .mobile-toggle { 
+        display: flex; 
+        order: 1; 
+        background: none; border: none; font-size: 28px; padding: 0; color: #fff;
+        width: 50px; /* Largura fixa para equilibrar */
+        justify-content: center; /* CORREÇÃO: Centraliza o ícone no bloco de 50px */
+        align-items: center;
+    }
+
+    /* 2. LOGO (Centro Perfeito) */
+    .site-branding { 
+        order: 2; 
+        flex: 1; /* Ocupa todo o espaço do meio */
+        display: flex; 
+        justify-content: center; /* Centraliza */
+        align-items: center;
+    } 
+    .site-title a { font-size: 20px; }
+
+    /* 3. LUPA (Direita - Centralizada no Bloco) */
+    .header-actions { 
+        order: 3; 
+        width: 50px; /* Largura fixa igual ao sanduiche */
+        justify-content: center; /* CORREÇÃO: Alinha simetricamente ao menu */
+        align-items: center;
+    }
+
+    /* Botão Lupa Mobile */
+    .search-toggle-btn {
+        display: flex;
+        background: transparent; border: none; cursor: pointer;
+        font-size: 24px; color: #fff; padding: 0;
+    }
+
+    /* Reverte a Barra para modo "Escondido/Expandível" */
+    .search-expanded-bar {
+        position: absolute;
+        top: -10px; /* Cobre o header */
+        right: -15px; /* Compensa padding do container */
+        width: 0; /* Começa fechado */
+        height: 60px;
+        background: #fff; /* Fundo branco sólido no mobile */
+        border: none;
+        border-radius: 0;
+        overflow: hidden;
+        transition: width 0.3s ease;
+        z-index: 1100;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Quando clica na lupa */
+    .search-expanded-bar.active {
+        width: 100vw; /* Abre tela toda */
+        position: fixed;
+        left: 0; top: 0;
+        padding: 0 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* Ajustes internos da busca mobile */
+    .search-form-expanded { width: 100%; }
+    .search-input-field { color: #333; background: #f0f0f0; border: 1px solid #ddd; }
+    .search-input-field::placeholder { color: #999; }
+    .search-submit-btn { color: var(--primary); right: auto; margin-left: 5px; }
+    
+    /* Botão fechar aparece no mobile */
+    .close-search { 
+        display: block; 
+        background: none; border: none; 
+        font-size: 24px; color: #555; 
+        margin-left: 10px;
+    }
+
+    /* Esconde Menu Desktop */
+    .desktop-nav-center { display: none; }
+
+
+    /* FAIXA 2: COR AZUL ESCURO (#009bb5) */
+    .mobile-cat-strip {
+        display: block;
+        background-color: #009bb5;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    .mobile-cat-strip::-webkit-scrollbar { display: none; }
+
+    /* Lista de Ícones (Centralizada se sobrar espaço) */
+    .mobile-icon-scroll { 
+        display: flex; 
+        list-style: none; margin: 0; padding: 0; 
+        justify-content: center; /* CORREÇÃO: Centraliza os ícones na faixa */
+        min-width: 100%; /* Garante que o container ocupe tudo */
+    }
+    /* Se os itens estourarem a tela, volta para flex-start */
+    .mobile-icon-scroll {
+        justify-content: flex-start; 
+    }
+    /* Mas se couberem, centraliza (Hack com margin auto) */
+    .mobile-icon-scroll {
+        margin: 0 auto;
+        width: fit-content;
+        min-width: min-content;
+    }
+    /* Correção Final para Scroll: */
+    .mobile-cat-strip .container {
+        display: flex;
+        justify-content: center; /* Tenta centralizar */
+    }
+    /* Se for menor que a tela, fica no centro. Se maior, scroll funciona normal */
+
+    .mobile-icon-scroll li { display: inline-block; }
+
+    .mobile-icon-scroll li a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px 15px;
+        color: rgba(255,255,255,0.9);
+        font-size: 0.75rem;
+        text-decoration: none;
+        border-bottom: 3px solid transparent;
+        min-width: 80px;
+    }
+
+    .mobile-icon-scroll li a span.dashicons {
+        color: #fff;
+        font-size: 20px; width: 20px; height: 20px; margin-bottom: 4px;
+    }
+
+    .mobile-icon-scroll li a:hover {
+        background: rgba(0,0,0,0.1);
+        color: #fff; border-bottom-color: #fff;
+    }
+
+    /* GAVETA LATERAL */
+    .mobile-drawer {
+        display: block;
+        position: fixed; top: 0; left: -280px;
+        width: 280px; height: 100%;
+        background: #fff; z-index: 2000;
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 2px 0 10px rgba(0,0,0,0.2); padding: 20px;
+    }
+    .mobile-drawer.open { left: 0; }
+
+    .drawer-overlay {
+        display: none;
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5); z-index: 1500;
+    }
+    .drawer-overlay.open { display: block; }
+    
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    .drawer-title { font-weight: 800; font-size: 1.2rem; color: var(--dark); }
+    .close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; }
+    .drawer-menu-list { list-style: none; padding: 0; margin: 0; }
+    .drawer-menu-list li a { display: block; padding: 12px 0; border-bottom: 1px solid #eee; color: #333; font-weight: 500; }
+}
 
 /* Busca */
 .search-form-portal { display: flex; flex: 1; max-width: 600px; position: relative; }
@@ -515,8 +836,7 @@ img { max-width: 100%; height: auto; }
 
 /* --- HEADER GERAL --- */
 .site-header {
-    background: #fff;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     position: relative;
     z-index: 999;
 }
@@ -1352,6 +1672,4 @@ img { max-width: 100%; height: auto; }
 .profiles-section h4:first-of-type {
     margin-top: 20px;
 }
-
-
 
