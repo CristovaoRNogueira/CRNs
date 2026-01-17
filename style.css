@@ -2,7 +2,7 @@
 Theme Name: crns
 Theme URI: https://crnsistemas.com.br
 Author: Cristovao Rodrigues
-Author URI: https://crnsistemas.com.br
+Author URI: https://website.com/crns
 Description: Tema focado em afiliados e reviews de tecnologia.
 Requires at least: 5.6
 Tested up to: 6.0
@@ -248,9 +248,17 @@ img { max-width: 100%; height: auto; }
     /* Botão Lupa Mobile */
     .search-toggle-btn {
         display: flex;
-        background: transparent; border: none; cursor: pointer;
-        font-size: 24px; color: #fff; padding: 0;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 28px; 
+        color: #fff;
+        padding: 0;
+        line-height: 1;
     }
+
 
     /* Reverte a Barra para modo "Escondido/Expandível" */
     .search-expanded-bar {
