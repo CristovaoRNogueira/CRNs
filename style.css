@@ -802,9 +802,41 @@ img { max-width: 100%; height: auto; }
 /* --- PROFILE GRID (HOME) --- */
 .profile-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 15px;
 }
+
+/* Esconde tudo após o 4º item (mobile/tablet) */
+.profile-grid > *:nth-child(n+5) {
+    display: none;
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+    .profile-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .profile-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+    .profile-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    /* Mostra o 5º item apenas no desktop */
+    .profile-grid > *:nth-child(5) {
+        display: flex; /* ← AQUI está a correção */
+    }
+}
+
+
 
 .profile-card {
     background: #fff;
@@ -821,7 +853,18 @@ img { max-width: 100%; height: auto; }
     align-items: center;
     justify-content: center;
     gap: 10px;
+    min-width: 120px;
+    flex-wrap: nowrap;
 }
+
+.profile-card span {
+    display: block;
+    width: 100%;
+    text-align: center;
+    line-height: 1.2;
+    white-space: normal;
+}
+
 
 .profile-card .dashicons {
     font-size: 24px;
@@ -1058,7 +1101,7 @@ img { max-width: 100%; height: auto; }
 
 /* --- HERO SPLIT SECTION --- */
 .hero-split {
-    padding: 40px 0 60px 0;
+    padding: 40px 0 40px 0;
     background: #fff;
     border-bottom: 1px solid #f0f0f0;
     margin-bottom: 40px;
@@ -1088,7 +1131,7 @@ img { max-width: 100%; height: auto; }
 .split-content h1 {
     font-size: 2.5rem;
     line-height: 1.2;
-    margin: 0 0 20px 0;
+    margin: 0 0 0 0;
     color: var(--dark);
 }
 
@@ -1111,7 +1154,6 @@ img { max-width: 100%; height: auto; }
     font-size: 1.1rem;
     color: #555;
     line-height: 1.6;
-    margin-bottom: 30px;
     max-width: 500px;
 }
 
@@ -1688,18 +1730,15 @@ img { max-width: 100%; height: auto; }
 
 /* --- TÍTULOS DE SEÇÃO (Estilo Portal) --- */
 .section-subtitle {
-    font-size: 1.3rem;       /* Aumentei um pouco */
-    font-weight: 800;        /* Negrito forte */
-    color: #333;             /* Cor escura (quase preto) para contraste */
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #333;
     text-transform: uppercase;
-    letter-spacing: 0.5px;   /* Espaçamento leve entre letras */
-    
-    /* O Detalhe Visual (Barra Colorida) */
-    border-left: 5px solid var(--primary); 
-    padding-left: 15px;      /* Afasta o texto da barra */
-    
-    margin-top: 50px;        /* Espaço acima (separa do bloco anterior) */
-    margin-bottom: 20px;     /* Espaço abaixo (separa dos cards) */
+    letter-spacing: 0.5px;
+    border-left: 5px solid var(--primary);
+    padding-left: 15px;
+    /* margin-top: 50px; */
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
 }
@@ -1708,4 +1747,322 @@ img { max-width: 100%; height: auto; }
 .profiles-section h4:first-of-type {
     margin-top: 20px;
 }
+
+/* =========================================
+   ESTILOS NOVOS: HERO SLIDER & BOTÕES (V5)
+   Adicione ao final do arquivo style.css
+   ========================================= */
+
+/* --- 1. BOTÕES LADO A LADO (Mobile & Desktop) --- */
+.hero-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: nowrap !important; /* Força ficar na mesma linha */
+    width: 100%;
+}
+
+.btn-hero-primary, 
+.btn-hero-whatsapp {
+    flex: 1; /* Ocupam o mesmo espaço (50%/50%) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 12px 10px; /* Padding menor nas laterais p/ caber no mobile */
+    font-size: 0.9rem;
+    white-space: nowrap; /* Evita quebra de texto feia */
+    border-radius: 8px;
+    text-decoration: none !important;
+}
+
+/* Ajuste fino para telas muito pequenas */
+@media (max-width: 380px) {
+    .hero-buttons a { font-size: 0.8rem; padding: 10px 5px; }
+    .hero-buttons .dashicons { font-size: 16px; width: 16px; height: 16px; margin-right: 4px; }
+}
+
+
+/* --- 2. NOVO SLIDE HERO (Swiper) --- */
+.split-visuals {
+    overflow: hidden; /* Importante para o slide não vazar */
+    padding-bottom: 30px; /* Espaço para a paginação */
+}
+
+/* Cabeçalho do Slide (Título + Setinhas) */
+.hero-slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.hero-slider-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--dark);
+    font-weight: 800;
+}
+
+.swiper-nav-btns {
+    display: flex;
+    gap: 10px;
+}
+
+.swiper-button-next-custom,
+.swiper-button-prev-custom {
+    width: 32px;
+    height: 32px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--primary);
+    transition: 0.2s;
+}
+.swiper-button-next-custom:hover,
+.swiper-button-prev-custom:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+/* Card do Slide */
+.swiper-slide {
+    height: auto;
+}
+
+.slide-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    border: 1px solid #eee;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    transition: transform .25s;
+}
+
+.slide-card:hover {
+    transform: translateY(-4px);
+}
+
+
+.slide-cat {
+    background: var(--primary);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    align-self: flex-start;
+    margin-bottom: 5px;
+    color: #fff;
+}
+
+
+
+
+/* Bolinhas da paginação */
+.swiper-pagination-bullet-active {
+    background: var(--primary) !important;
+}
+
+
+
+/* =========================================
+   ESTILOS: CAIXA DO SLIDE HERO (V7 - Compacto & Fix Mobile)
+   Substitua o bloco V6 anterior por este.
+   ========================================= */
+
+/* Ajuste do container pai */
+.split-visuals {
+    overflow: visible;
+    padding: 10px;
+    min-width: 0;
+}
+
+/* A CAIXA BRANCA */
+.crns-slider-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+    border: 1px solid #e3e3e3;
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* Cabeçalho da Caixa (Título Centralizado) */
+.hero-slider-header {
+    display: flex;
+    justify-content: center; /* CENTRALIZA O TÍTULO */
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+}
+
+.hero-slider-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--dark);
+    text-transform: uppercase;
+}
+
+/* CARDS DO SLIDE */
+.slide-card {
+    display: block;  
+    border-radius: 8px;    
+    width: 100%;
+}
+
+
+
+.slide-top {
+    margin-bottom: 6px;
+}
+
+.slide-cat {
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: #ffe7d9;
+    color: var(--primary);
+    padding: 3px 7px;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.slide-top h4 {
+    font-size: 0.95rem;
+    line-height: 1.3;
+    color: #222;
+    margin: 6px 0 0;
+    font-weight: 700;
+}
+
+.slide-image {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
+}
+
+.slide-image img {
+    max-width: 100%;
+    max-height: 160px;
+    object-fit: contain;
+}
+
+
+.slide-bottom {
+    margin-top: 10px;
+}
+
+.slide-price-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 800;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+
+@media (max-width: 991px) {
+    .slide-image img {
+        max-height: 140px;
+    }
+
+    .slide-card {
+        padding: 12px;
+    }
+
+    .slide-top h4 {
+        font-size: 0.9rem;
+    }
+}
+
+
+
+/* --- BOTÕES DE NAVEGAÇÃO (Agora Flutuantes) --- */
+.swiper-button-next-custom,
+.swiper-button-prev-custom {
+    position: absolute; /* Flutua sobre o slide */
+    top: 50%;           /* Meio vertical */
+    transform: translateY(-50%); /* Ajuste fino de centro */
+    z-index: 20;        /* Fica acima da imagem */
+    
+    width: 32px; height: 32px;
+    background: rgba(255, 255, 255, 0.9); /* Fundo branco semi-transparente */
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--primary);
+    font-size: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15); /* Sombra para destacar */
+    transition: 0.2s;
+    border: 1px solid #eee;
+}
+
+/* Posicionamento */
+.swiper-button-prev-custom { left: -10px; }  /* Sai um pouquinho pra fora na esq */
+.swiper-button-next-custom { right: -10px; } /* Sai um pouquinho pra fora na dir */
+
+/* Hover */
+.swiper-button-next-custom:hover,
+.swiper-button-prev-custom:hover {
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-50%) scale(1.1); /* Cresce um pouco */
+}
+
+/* Paginação */
+.swiper-pagination.custom-pagination {
+    position: relative;
+    bottom: 0;
+    margin-top: 10px;
+}
+.swiper-pagination-bullet-active { background: var(--primary) !important; }
+
+
+/* --- MOBILE (Ajustes de segurança) --- */
+@media (max-width: 991px) {
+    .split-visuals {
+        padding: 0;
+        width: 100%;
+    }
+    
+    .crns-slider-box {
+        padding: 15px;
+        width: 100%;
+    }
+    
+    .swiper {
+        width: 100%;
+        overflow: visible;
+    }
+    
+    .swiper-button-prev-custom { left: 0; }
+    .swiper-button-next-custom { right: 0; }
+    
+    .slide-card {
+        min-height: 250px;
+        height: 25vh;
+        max-height: 320px;
+    }
+}
+
+
+
 

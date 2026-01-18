@@ -14,6 +14,13 @@ function crns_load_scripts(){
     
     // Scripts JS
     wp_enqueue_script( 'dropdown', get_template_directory_uri() . '/js/dropdown.js', array(), '1.0', true );
+
+    // --- SLIDE ---
+    if ( is_front_page() ) {
+        wp_enqueue_style( 'swiper-css', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11.0' );
+        wp_enqueue_script( 'swiper-js', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', array(), '11.0', true );
+    }
+
 }
 add_action( 'wp_enqueue_scripts', 'crns_load_scripts' );
 
