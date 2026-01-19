@@ -42,7 +42,38 @@ body { background: var(--light); color: var(--dark); font-family: var(--font); m
 a { color: var(--primary-dark); text-decoration: none; transition: 0.2s; }
 a:hover { color: var(--primary); }
 img { max-width: 100%; height: auto; }
-.container { max-width: 1140px; margin: 0 auto; padding: 0 15px; position: relative; }
+
+/* Container base */
+.container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 15px;
+    position: relative;
+}
+
+/* Desktop */
+@media (min-width: 992px) {
+    .container {
+        max-width: 1200px;
+    }
+}
+
+/* --- HEADER FIXO E CORES --- */
+.site-header {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #00C5E5;
+    box-shadow: 0 4px 10px rgba(0,197,229,0.3);
+}
+
+/* Faixa principal do header */
+.header-main-bar {
+    background: #00C5E5;
+    border-bottom: none;
+}
+
 
 /* --- HEADER FIXO E CORES --- */
 .site-header {
@@ -58,13 +89,6 @@ img { max-width: 100%; height: auto; }
 .header-main-bar {
     background: #00C5E5; /* Azul Ciano */
     border-bottom: none; /* Remove borda cinza */
-}
-
-/* O Container segura o conteúdo no centro */
-.container {
-    max-width: 1140px; /* Largura padrão */
-    margin: 0 auto;    /* Centraliza na tela */
-    padding: 0 15px;   /* Margem de segurança nas laterais */
 }
 
 .header-wrapper {
@@ -467,7 +491,7 @@ img { max-width: 100%; height: auto; }
 /* 7. Ofertas & Sidebar (Portal Style) */
 /* Layout Flexbox */
 @media (min-width: 992px) {
-    .container-flex { display: flex; /*gap: 30px;*/ align-items: flex-start; }
+    .container-flex { display: flex; gap: 30px; align-items: flex-start; }
     .offers-sidebar { width: 280px; flex-shrink: 0; position: sticky; top: 20px; }
     .offers-content { flex: 1; }
 }
@@ -495,10 +519,24 @@ img { max-width: 100%; height: auto; }
 .offers-header-top span { font-size: 0.9rem; color: #777; background: #f0f0f0; padding: 2px 8px; border-radius: 10px; }
 
 /* Grid Cards */
-.offers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; padding-bottom: 50px; }
+.offers-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
+    gap: 13px; padding-bottom: 50px; 
+}
 
 /* Card V2 (Unificado) */
-.offer-card-v2 { background: #fff; border-radius: 8px; border: 1px solid #e5e5e5; overflow: hidden; transition: 0.3s; display: flex; flex-direction: column; position: relative; }
+.offer-card-v2 { 
+    background: #fff; 
+    border-radius: 8px; 
+    border: 1px solid #e5e5e5; 
+    overflow: hidden; 
+    transition: 0.3s; 
+    display: flex; 
+    flex-direction: column; 
+    position: relative;
+    max-width: 284px;
+}
 .offer-card-v2:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: var(--primary); transform: translateY(-3px); }
 
 .card-img { height: 200px; padding: 20px; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid #f9f9f9; background: #fff; }
@@ -2065,19 +2103,27 @@ img { max-width: 100%; height: auto; }
 
 
 /* ==========================================================================
-   LAYOUT OFERTAS - ESTILO MERCADO LIVRE (V2 - CLEAN & RESPONSIVO)
+   LAYOUT OFERTAS - ESTILO CLEAN & RESPONSIVO)
    ========================================================================== */
 
 /* 1. Ajustes Gerais */
-.ml-layout {
-    background-color: #ededed !important;
+/* Página de Ofertas */
+body.page-template-page-ofertas .ml-layout {
+    background-color: #ededed;
 }
-.ml-layout .container {
+
+/* Mobile – mais área útil */
+body.page-template-page-ofertas .ml-layout .container {
     padding: 0 10px;
 }
+
+/* Desktop – padding padrão */
 @media (min-width: 992px) {
-    .ml-layout .container { padding: 0 15px; }
+    body.page-template-page-ofertas .ml-layout .container {
+        padding: 0 15px;
+    }
 }
+
 
 /* 2. Barra Superior Mobile (NÃO STICKY - FLUXO NORMAL) */
 .ml-mobile-static-bar {
@@ -2135,6 +2181,13 @@ img { max-width: 100%; height: auto; }
 .ml-cat-card.active .cat-icon-circle { color: #3483fa; background: #eaf1ff; }
 .cat-name { font-size: 0.7rem; font-weight: 500; color: #666; }
 
+/* Estrutura principal da página de ofertas */
+body.page-template-page-ofertas .container-flex {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
 /* 4. Sidebar e Responsividade Desktop */
 .offers-content { flex: 1; min-width: 0; } /* Evita overflow do grid */
 
@@ -2142,7 +2195,7 @@ img { max-width: 100%; height: auto; }
     .offers-sidebar {
         width: 260px; /* Largura fixa segura */
         flex-shrink: 0;
-        margin-right: 20px;
+        margin-right: 0;
     }
 }
 
@@ -2179,9 +2232,9 @@ img { max-width: 100%; height: auto; }
 /* 5. Grid de Produtos (Responsivo) */
 .offers-grid.ml-grid-layout {
     display: grid;
-    /* Desktop Grande: 4 colunas */
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
+    /* Desktop Grande: 3 colunas */
+    grid-template-columns: repeat(3, 1fr);
+    /* gap: 4px; */
     background: transparent;
 }
 
@@ -2189,6 +2242,12 @@ img { max-width: 100%; height: auto; }
 @media (max-width: 1200px) {
     .offers-grid.ml-grid-layout {
         grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1600px) {
+    .offers-grid.ml-grid-layout {
+        grid-template-columns: repeat(4, 1fr);
     }
 }
 
