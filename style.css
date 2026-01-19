@@ -81,48 +81,36 @@ img { max-width: 100%; height: auto; }
     position: sticky;
     top: 0;
     z-index: 1000;
-    background: #00C5E5; /* MUDANÇA: Fundo Azul no Desktop também */
-    box-shadow: 0 4px 10px rgba(0,197,229,0.3); /* Sombra suave azulada */
+    background: #00C5E5;
+    box-shadow: 0 4px 10px rgba(0,197,229,0.3);
 }
 
-/* FAIXA 1 (Desktop e Mobile agora unificados na cor) */
+/* FAIXA PRINCIPAL */
 .header-main-bar {
-    background: #00C5E5; /* Azul Ciano */
-    border-bottom: none; /* Remove borda cinza */
+    background: #00C5E5;
+    border-bottom: none;
 }
 
+/* CONTAINER DO HEADER */
 .header-wrapper {
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 80px;
     gap: 20px;
-    position: relative;
+    position: relative; /* Referência para o menu central */
     width: 100%;
 }
 
 /* LOGO */
 .site-branding { 
-    flex-shrink: 0;
+    flex: 0 0 auto;
     z-index: 10;
     display: flex;
     align-items: center;
     height: 100%;
 }
 
-.site-title {
-    line-height: 1;
-}
-
-.site-title a { 
-    font-size: 24px; 
-    font-weight: 800; 
-    color: #fff; /* Texto Branco */
-    text-decoration: none; 
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Quando existe LOGO */
 .site-branding .custom-logo-link {
     display: flex;
     align-items: center;
@@ -131,145 +119,170 @@ img { max-width: 100%; height: auto; }
 .site-branding .custom-logo {
     max-height: 48px;
     width: auto;
-    height: auto;
     display: block;
 }
 
+/* --- MENU CENTRAL DESKTOP (CENTRO REAL DA PÁGINA) --- */
+.desktop-nav-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+}
 
-/* MENU DESKTOP (Ícones e Texto Brancos) */
-.desktop-nav-center { flex: 1; display: flex; justify-content: center; }
-
+/* LISTA DE ÍCONES */
 .icon-menu-list {
     display: flex;
     list-style: none;
-    margin: 0; padding: 0;
+    margin: 0;
+    padding: 0;
     gap: 30px;
 }
 
 .icon-menu-list li a {
     display: flex;
-    flex-direction: column; /* Ícone em cima */
+    flex-direction: column;
     align-items: center;
-    color: rgba(255,255,255,0.9); /* Branco com leve transparência */
+    color: rgba(255,255,255,0.9);
     font-size: 0.8rem;
     font-weight: 700;
     text-decoration: none;
-    transition: 0.2s;
+    transition: 0.2s ease;
     line-height: 1.2;
     text-align: center;
 }
 
-/* Ícone */
 .icon-menu-list li a span.dashicons {
-    font-size: 32px;  /* MAIOR */
-    width: 32px;      /* MAIOR */
-    height: 32px;     /* MAIOR */
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
     margin-bottom: 6px;
     color: #fff;
-    transition: 0.2s;
     opacity: 0.95;
+    transition: 0.2s ease;
 }
 
-/* Hover no Menu (Fica 100% Branco e brilha) */
-.icon-menu-list li a:hover { 
-    color: #fff; 
-    transform: translateY(-2px); /* Leve subida */
+.icon-menu-list li a:hover {
+    color: #fff;
+    transform: translateY(-2px);
 }
-.icon-menu-list li a:hover span.dashicons { 
-    opacity: 1; 
+
+.icon-menu-list li a:hover span.dashicons {
+    opacity: 1;
     text-shadow: 0 0 10px rgba(255,255,255,0.5);
 }
 
-/* --- BUSCA E AÇÕES (DESKTOP: SEMPRE ABERTO) --- */
+/* ================= BUSCA E AÇÕES ================= */
+
 .header-actions { 
-    position: relative; 
-    display: flex; 
-    align-items: center; 
+    flex: 0 0 auto;
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
-/* 1. Esconde botão de lupa no Desktop */
+/* Esconde botão de lupa no desktop */
 .search-toggle-btn {
-    display: none; 
+    display: none;
 }
 
-/* 2. Barra de Busca Fixa e Visível no Desktop */
+/* ================= BUSCA DESKTOP ================= */
+
 .search-expanded-bar {
     position: relative;
-    width: 300px; /* Largura fixa */
-    background: rgba(255,255,255,0.2); /* Fundo branco semitransparente */
+    width: 300px;
+    height: 40px;
+    background: #ffffff;
     border-radius: 50px;
-    display: flex; 
+    display: flex;
     align-items: center;
-    border: 1px solid rgba(255,255,255,0.3);
+    border: 1px solid #e0e0e0;
+    padding: 0 10px;
 }
 
 .search-form-expanded { 
-    display: flex; 
-    width: 100%; 
-    align-items: center; 
-    position: relative; 
+    display: flex;
+    width: 100%;
+    align-items: center;
 }
 
-/* Input Desktop */
 .search-input-field {
-    width: 100%;
+    flex: 1;
     border: none;
     background: transparent;
-    padding: 10px 15px;
+    padding: 8px 10px;
     font-size: 0.9rem;
     outline: none;
-    color: #fff; /* Texto branco */
+    color: #333;
 }
 
 .search-input-field::placeholder {
-    color: rgba(255,255,255,0.7); /* Placeholder claro */
+    color: #999;
 }
 
-/* Botão de Enviar (Lupa dentro da barra) */
 .search-submit-btn { 
-    background: transparent; 
-    color: #fff; 
-    border: none; 
-    width: 34px; height: 34px; 
-    cursor: pointer; 
-    display: flex; align-items: center; justify-content: center; 
-    margin-right: 5px;
+    background: transparent;
+    border: none;
+    width: 34px;
+    height: 34px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Esconde botão de fechar no Desktop */
-.close-search { display: none; }
+.search-submit-btn .dashicons {
+    color: #666;
+}
 
-/* Esconde elementos Mobile */
-.mobile-toggle, .mobile-cat-strip, .mobile-drawer, .drawer-overlay { display: none; }
+.close-search {
+    display: none;
+}
 
+/* ================= ESCONDE ELEMENTOS MOBILE NO DESKTOP ================= */
 
-/* --- VERSÃO MOBILE (< 992px) --- */
+.mobile-toggle,
+.mobile-cat-strip,
+.mobile-drawer,
+.drawer-overlay {
+    display: none;
+}
+
+/* ================= MOBILE (< 992px) ================= */
+
 @media (max-width: 991px) {
-    
+
     .header-wrapper {
         height: 60px;
         justify-content: space-between;
     }
 
-    /* 1. SANDUÍCHE (Esquerda - Agora Centralizado no Bloco) */
+    /* Menu sanduíche */
     .mobile-toggle { 
         display: flex; 
         order: 1; 
-        background: none; border: none; font-size: 28px; padding: 0; color: #fff;
-        width: 50px; /* Largura fixa para equilibrar */
-        justify-content: center; /* CORREÇÃO: Centraliza o ícone no bloco de 50px */
+        background: none;
+        border: none;
+        font-size: 28px;
+        padding: 0;
+        color: #fff;
+        width: 50px;
+        justify-content: center;
         align-items: center;
     }
 
-       /* 3. LUPA (Direita - Centralizada no Bloco) */
+    /* Ações direita (lupa) */
     .header-actions { 
         order: 3; 
-        width: 50px; /* Largura fixa igual ao sanduiche */
-        justify-content: center; /* CORREÇÃO: Alinha simetricamente ao menu */
+        width: 50px;
+        justify-content: center;
         align-items: center;
     }
 
-    /* Botão Lupa Mobile */
+    /* Botão lupa mobile */
     .search-toggle-btn {
         display: flex;
         align-items: center;
@@ -283,15 +296,14 @@ img { max-width: 100%; height: auto; }
         line-height: 1;
     }
 
-
-    /* Reverte a Barra para modo "Escondido/Expandível" */
+    /* Barra expansível mobile */
     .search-expanded-bar {
         position: absolute;
-        top: -10px; /* Cobre o header */
-        right: -15px; /* Compensa padding do container */
-        width: 0; /* Começa fechado */
+        top: -10px;
+        right: -15px;
+        width: 0;
         height: 60px;
-        background: #fff; /* Fundo branco sólido no mobile */
+        background: #ffffff;
         border: none;
         border-radius: 0;
         overflow: hidden;
@@ -299,36 +311,59 @@ img { max-width: 100%; height: auto; }
         z-index: 1100;
         display: flex;
         align-items: center;
+        padding: 0;
     }
 
-    /* Quando clica na lupa */
     .search-expanded-bar.active {
-        width: 100vw; /* Abre tela toda */
+        width: 100vw;
         position: fixed;
-        left: 0; top: 0;
+        left: 0;
+        top: 0;
         padding: 0 10px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
-    /* Ajustes internos da busca mobile */
-    .search-form-expanded { width: 100%; }
-    .search-input-field { color: #333; background: #f0f0f0; border: 1px solid #ddd; }
-    .search-input-field::placeholder { color: #999; }
-    .search-submit-btn { color: var(--primary); right: auto; margin-left: 5px; }
-    
-    /* Botão fechar aparece no mobile */
-    .close-search { 
-        display: block; 
-        background: none; border: none; 
-        font-size: 24px; color: #555; 
-        margin-left: 10px;
+    /* Ajustes internos mobile */
+    .search-form-expanded {
+        width: 100%;
     }
 
-    /* Esconde Menu Desktop */
-    .desktop-nav-center { display: none; }
+    .search-input-field {
+        color: #333;
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
 
+    .search-input-field::placeholder {
+        color: #999;
+    }
 
-    /* FAIXA 2: COR AZUL ESCURO (#009bb5) */
+    .search-submit-btn .dashicons {
+        color: var(--primary);
+    }
+
+    /* Botão fechar */
+    .close-search { 
+        display: block; 
+        background: none;
+        border: none; 
+        font-size: 24px;
+        color: #555; 
+        margin-left: 10px;
+        cursor: pointer;
+    }
+
+    /* Esconde menu central no mobile */    
+    .desktop-nav-center {
+        display: none;
+    }
+}
+
+/* ================= FAIXA DE CATEGORIAS MOBILE ================= */
+@media (max-width: 991px) {
+    
+    /* FAIXA 2: COR AZUL ESCURO */
     .mobile-cat-strip {
         display: block;
         background-color: #009bb5;
@@ -338,6 +373,12 @@ img { max-width: 100%; height: auto; }
         -webkit-overflow-scrolling: touch;
     }
     .mobile-cat-strip::-webkit-scrollbar { display: none; }
+     
+    .mobile-cat-strip .container {
+        display: flex;
+        justify-content: center; 
+    }
+}
 
     /* Lista de Ícones (Centralizada se sobrar espaço) */
     .mobile-icon-scroll { 
@@ -356,12 +397,7 @@ img { max-width: 100%; height: auto; }
         width: fit-content;
         min-width: min-content;
     }
-    /* Correção Final para Scroll: */
-    .mobile-cat-strip .container {
-        display: flex;
-        justify-content: center; /* Tenta centralizar */
-    }
-    /* Se for menor que a tela, fica no centro. Se maior, scroll funciona normal */
+    
 
     .mobile-icon-scroll li { display: inline-block; }
 
@@ -1093,13 +1129,6 @@ img { max-width: 100%; height: auto; }
         z-index: 10;
     } 
     
-    /* Ações do Header (Botão Ofertas) */
-    .header-actions {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
     /* Mostrar Toggle */
     .menu-toggle { display: block; }
     
@@ -1169,8 +1198,21 @@ img { max-width: 100%; height: auto; }
 .split-content h1 {
     font-size: 2.5rem;
     line-height: 1.2;
-    margin: 0 0 0 0;
+    margin: 0 0 12px 0;
     color: var(--dark);
+    font-weight: 800;
+}
+
+.split-content h1 .highlight-text {
+    display: inline-block;
+    font-weight: 900;
+}
+
+.split-content p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #555;
+    margin: 0 0 16px 0;
 }
 
 .highlight-text {
@@ -1322,8 +1364,42 @@ img { max-width: 100%; height: auto; }
     }
     
     .split-content {
-        text-align: center;
-        order: 1; /* Texto vem primeiro */
+        /* text-align: center; */
+        order: 1;
+        padding: 0 12px; /* respiro lateral */
+    }
+
+    .split-content h1 {
+        font-size: 1.8rem;       /* reduz impacto sem perder força */
+        line-height: 1.25;
+        margin-bottom: 14px;
+    }
+
+    /* Evita quebra exagerada no mobile */
+    .split-content h1 br {
+        display: none;
+    }
+
+    .split-content h1 .highlight-text {
+        display: inline-block;          /* força quebra elegante */
+        margin-top: 4px;
+        margin-left: 4px;
+    }
+
+    .split-content p {
+        font-size: 0.95rem;
+        line-height: 1.55;
+        margin-bottom: 18px;
+    }
+
+    .hero-description strong {
+        font-weight: 700;
+    }
+
+    .hero-note {
+        font-size: 0.85rem;
+        color: #777;
+        margin-top: 10px;
     }
     
     .hero-buttons {
@@ -1333,6 +1409,8 @@ img { max-width: 100%; height: auto; }
     .hero-description {
         margin-left: auto;
         margin-right: auto;
+        max-width: 480px;
+        color: #444;
     }
 
     .split-visuals {
@@ -1351,7 +1429,7 @@ img { max-width: 100%; height: auto; }
     color: #b0b0b0; /* Texto cinza claro */
     padding: 60px 0 0 0;
     font-size: 0.95rem;
-    margin-top: 50px;
+    margin-top: 10px;
 }
 
 .footer-widgets {
@@ -1460,12 +1538,18 @@ img { max-width: 100%; height: auto; }
     .footer-widgets {
         grid-template-columns: 1fr; /* 1 coluna no celular */
         gap: 30px;
+        text-align: center;
     }
     .site-info {
         flex-direction: column;
         text-align: center;
         gap: 10px;
     }
+    .footer-social {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
 }
 
 
@@ -2071,7 +2155,8 @@ img { max-width: 100%; height: auto; }
     bottom: 0;
     margin-top: 10px;
 }
-.swiper-pagination-bullet-active { background: var(--primary) !important; }
+.swiper-pagination-bullet-active {
+    background: var(--primary) !important; }
 
 
 /* --- MOBILE (Ajustes de segurança) --- */
@@ -2330,4 +2415,13 @@ body.page-template-page-ofertas .container-flex {
     .ml-card .card-info { padding: 10px; }
     .ml-card .card-price { font-size: 20px; }
     .discount-pill { font-size: 0.65rem; padding: 2px 6px; }
+}
+
+@media (max-width: 991px) {
+
+    /* Paginação fica fora da área clicável do card */
+    .crns-slider-box .swiper-pagination {
+        margin-top: 50px;
+        z-index: 1;
+    }
 }
