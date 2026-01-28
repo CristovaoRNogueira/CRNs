@@ -77,7 +77,7 @@ function crns_register_review_cpt() {
     // Taxonomia: Tipo de Produto (Notebook, Smartphone)
     register_taxonomy( 'tipo_produto', 'review', array( 'labels' => array( 'name' => 'Tipos de Produto', 'singular_name' => 'Tipo de Produto' ), 'rewrite' => array( 'slug' => 'categoria' ), 'hierarchical' => true, 'show_in_rest' => true, 'show_admin_column' => true ));
 
-    // NOVO: Taxonomia: Classificação (Gamer, Premium, Custo-Beneficio)
+    // Taxonomia: Classificação (Gamer, Premium, Custo-Beneficio)
     register_taxonomy( 'classificacao', 'review', array( 
         'labels' => array( 'name' => 'Classificações / Perfis', 'singular_name' => 'Classificação' ), 
         'rewrite' => array( 'slug' => 'perfil' ), 
@@ -126,13 +126,20 @@ add_action( 'add_meta_boxes', 'crns_add_product_meta_boxes' );
 function crns_product_meta_callback( $post ) {
     wp_nonce_field( 'crns_save_product_data', 'crns_product_meta_nonce' );
     
-    // 1. DADOS DE VENDA
-    $sale_fields = ['_crns_price', '_crns_old_price', '_crns_rating', '_crns_affiliate_link'];
+    // 1. DADOS DE VENDA (Com Cupom)
+    $sale_fields = [
+        '_crns_price' => 'Preço (R$)', 
+        '_crns_old_price' => 'Preço Antigo (R$)', 
+        '_crns_rating' => 'Nota (0-10)', 
+        '_crns_affiliate_link' => 'Link de Afiliado',
+        '_crns_coupon_code' => 'Código do Cupom' // NOVO CAMPO
+    ];
     echo '<div style="background:#eef2f7; padding:15px; margin-bottom:20px; border:1px solid #ccd0d4;">
-    <h4 style="margin-top:0; border-bottom:1px solid #ccc; padding-bottom:10px;">💰 Dados de Venda</h4>
+    <h4 style="margin-top:0; border-bottom:1px solid #ccc; padding-bottom:10px;">💰 Dados de Venda & Oferta</h4>
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">';
-    foreach($sale_fields as $f) { 
-        echo '<div><label style="font-weight:600">'.str_replace('_crns_','', $f).'</label><input type="text" name="'.$f.'" value="'.esc_attr(get_post_meta($post->ID, $f, true)).'" style="width:100%"></div>'; 
+    foreach($sale_fields as $key => $label) { 
+        $val = get_post_meta($post->ID, $key, true);
+        echo '<div><label style="font-weight:600">'.$label.'</label><input type="text" name="'.$key.'" value="'.esc_attr($val).'" style="width:100%"></div>'; 
     }
     echo '</div></div>';
 
@@ -190,8 +197,9 @@ function crns_product_meta_callback( $post ) {
 function crns_save_product_data( $post_id ) {
     if ( ! isset( $_POST['crns_product_meta_nonce'] ) || ! wp_verify_nonce( $_POST['crns_product_meta_nonce'], 'crns_save_product_data' ) ) return;
     
-    // Salva Venda
-    foreach(['_crns_price', '_crns_old_price', '_crns_rating', '_crns_affiliate_link'] as $f) { 
+    // Salva Venda (INCLUINDO CUPOM)
+    $venda_fields = ['_crns_price', '_crns_old_price', '_crns_rating', '_crns_affiliate_link', '_crns_coupon_code'];
+    foreach($venda_fields as $f) { 
         if(isset($_POST[$f])) update_post_meta($post_id, $f, sanitize_text_field($_POST[$f])); 
     }
 
@@ -230,34 +238,26 @@ function crns_format_spec_label( $meta_key ) {
         'camera main' => 'Câmera Traseira', 'camera front' => 'Câmera Frontal',
         'battery' => 'Bateria', 'print tech' => 'Tipo de Impressão',
         'print color' => 'Cor de Impressão', 'print conn' => 'Conectividade',
-        'voltage' => 'Voltagem', 'weight' => 'Peso'
+        'voltage' => 'Voltagem', 'weight' => 'Peso', 'coupon code' => 'Cupom'
     ];
     
     if(array_key_exists($clean, $map)) return $map[$clean];
     return ucwords($clean);
 }
 
-/* --- MOTOR DE FILTROS: VERSÃO OTIMIZADA COM CACHE --- */
+/* --- MOTOR DE FILTROS --- */
 function crns_get_sidebar_filters( $term_id = 0 ) {
-    // 1. Tenta pegar do cache primeiro
+    // Cache
     $cache_key = 'crns_filters_' . $term_id;
     $cached_filters = get_transient( $cache_key );
+    if ( false !== $cached_filters ) return $cached_filters;
 
-    if ( false !== $cached_filters ) {
-        return $cached_filters;
-    }
-
-    // Se não tiver cache, processa o banco de dados
     global $wpdb;
-    
     $post_ids = [];
     if ( $term_id > 0 ) {
         $post_ids = get_objects_in_term( $term_id, 'tipo_produto' );
     }
-
-    if ( $term_id > 0 && empty($post_ids) ) {
-        return [];
-    }
+    if ( $term_id > 0 && empty($post_ids) ) return [];
 
     $query = "SELECT DISTINCT meta_key FROM {$wpdb->postmeta} WHERE meta_value != ''";
     $ids_string = '';
@@ -267,7 +267,7 @@ function crns_get_sidebar_filters( $term_id = 0 ) {
         $query .= " AND post_id IN ($ids_string)";
     }
 
-    $query .= " AND (meta_key LIKE '_spec_%' OR meta_key LIKE '_crns_%') AND meta_key NOT IN ('_crns_price', '_crns_old_price', '_crns_rating', '_crns_affiliate_link', '_edit_lock', '_edit_last', '_thumbnail_id', '_wp_page_template')";
+    $query .= " AND (meta_key LIKE '_spec_%' OR meta_key LIKE '_crns_%') AND meta_key NOT IN ('_crns_price', '_crns_old_price', '_crns_rating', '_crns_affiliate_link', '_crns_coupon_code', '_edit_lock', '_edit_last', '_thumbnail_id', '_wp_page_template')";
 
     $keys = $wpdb->get_col($query);
     $filters = [];
@@ -275,9 +275,7 @@ function crns_get_sidebar_filters( $term_id = 0 ) {
     if($keys) {
         foreach($keys as $key) {
             $val_query = "SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value != ''";
-            if ( !empty($post_ids) ) {
-                $val_query .= " AND post_id IN ($ids_string)";
-            }
+            if ( !empty($post_ids) ) $val_query .= " AND post_id IN ($ids_string)";
             $val_query .= " LIMIT 50";
 
             $values = $wpdb->get_col( $wpdb->prepare($val_query, $key) );
@@ -294,22 +292,17 @@ function crns_get_sidebar_filters( $term_id = 0 ) {
             }
         }
     }
-
-    // 2. Salva o resultado no cache por 24 horas (DAY_IN_SECONDS)
     set_transient( $cache_key, $filters, DAY_IN_SECONDS );
-
     return $filters;
 }
 
-// Limpar o cache quando salvar/editar um produto para atualizar filtros novos
 add_action( 'save_post', 'crns_clear_filter_cache' );
 function crns_clear_filter_cache() {
     global $wpdb;
-    // Apaga todos os transients relacionados a filtros
     $wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_crns_filters_%'" );
 }
 
-/* --- APLICAÇÃO DOS FILTROS NA QUERY (GLOBAL INTELIGENTE - ATUALIZADO) --- */
+/* --- APLICAÇÃO DOS FILTROS --- */
 function crns_filter_offer_query( $query ) {
     if ( is_admin() || ! $query->is_main_query() ) return;
     if ( $query->is_page() ) return;
@@ -332,7 +325,7 @@ function crns_filter_offer_query( $query ) {
             $query->set('tax_query', $tax_query);
         }
 
-        // NOVO: Classificação (Gamer, Premium, etc)
+        // Classificação
         if ( !empty($_GET['classificacao']) && !is_tax('classificacao') ) {
             $tax_query = $query->get('tax_query') ?: [];
             $tax_query[] = array( 'taxonomy' => 'classificacao', 'field' => 'slug', 'terms' => $_GET['classificacao'] );
@@ -367,63 +360,34 @@ add_action( 'pre_get_posts', 'crns_filter_offer_query' );
 function crns_remove_native_custom_fields() { remove_meta_box( 'postcustom', 'review', 'normal' ); }
 add_action( 'admin_menu', 'crns_remove_native_custom_fields' );
 
-/* --- SCRIPT DROPDOWN --- */
-/* --- SCRIPT FILTROS (Acordeão + Mobile Toggle) --- */
+/* --- SCRIPT DROPDOWN (FOOTER) --- */
 function crns_filter_accordion_script() {
     ?>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        
-        // 1. Lógica do Acordeão (Títulos H4)
         const triggers = document.querySelectorAll('.filter-group h4');
         triggers.forEach(trigger => {
             trigger.addEventListener('click', function() {
                 this.parentElement.classList.toggle('active');
             });
         });
-
-        // 2. Lógica do Botão Mobile (Expandir/Recolher)
-        const mobileBtn = document.getElementById('mobile-filter-toggle');
-        const secFilters = document.getElementById('secondary-filters');
-
-        if(mobileBtn && secFilters) {
-            mobileBtn.addEventListener('click', function() {
-                secFilters.classList.toggle('open');
-                
-                // (Opcional) Troca o texto do botão
-                if(secFilters.classList.contains('open')) {
-                    mobileBtn.innerHTML = '<span class="dashicons dashicons-arrow-up-alt2"></span> Ocultar Filtros';
-                    mobileBtn.style.background = '#f9f9f9';
-                    mobileBtn.style.color = '#555';
-                    mobileBtn.style.borderColor = '#ccc';
-                } else {
-                    mobileBtn.innerHTML = '<span class="dashicons dashicons-filter"></span> Filtrar por Preço, Marca e Specs';
-                    mobileBtn.style.background = '#fff';
-                    mobileBtn.style.color = 'var(--primary)';
-                    mobileBtn.style.borderColor = 'var(--primary)'; // Se não funcionar var, use a cor hex #ff5500
-                }
-            });
-        }
     });
     </script>
     <?php
 }
 add_action('wp_footer', 'crns_filter_accordion_script');
 
-// Schema JSON-LD Otimizado para Reviews
+// Schema
 function crns_add_review_schema() {
     if ( is_singular( 'review' ) ) {
         global $post; 
         $price = get_post_meta( $post->ID, '_crns_price', true );
-        $rating = get_post_meta( $post->ID, '_crns_rating', true ); // Sua nota (ex: 9.5)
+        $rating = get_post_meta( $post->ID, '_crns_rating', true ); 
         $img_url = get_the_post_thumbnail_url($post->ID, 'full');
         $excerpt = wp_strip_all_tags(get_the_excerpt());
 
         if( $price ) {
-            // Converte nota 0-10 para escala 0-5 se necessário, ou mantém 0-10
-            // O Google prefere 1-5, vamos adaptar:
             $rating_value = $rating ? $rating : '0';
-            
             echo '<script type="application/ld+json">
             {
               "@context": "https://schema.org/",
@@ -458,24 +422,9 @@ function crns_add_review_schema() {
 }
 add_action( 'wp_head', 'crns_add_review_schema' );
 
-
-function crns_compare_shortcode($atts) { return ''; } add_shortcode('comparar', 'crns_compare_shortcode');
-
-/* --- BUSCAR CLASSIFICAÇÕES POR CATEGORIA (INTELIGENTE) --- */
 function crns_get_valid_classifications( $cat_slug = '' ) {
-    // Se não tiver categoria selecionada, retorna todas as classificações que têm posts
-    if ( empty($cat_slug) ) {
-        return get_terms(['taxonomy' => 'classificacao', 'hide_empty' => true]);
-    }
-
+    if ( empty($cat_slug) ) return get_terms(['taxonomy' => 'classificacao', 'hide_empty' => true]);
     global $wpdb;
-
-    // Query SQL Avançada:
-    // 1. Busca termos da taxonomia 'classificacao' (t_class)
-    // 2. Que estejam associados a posts (tr_class)
-    // 3. Onde esses mesmos posts TAMBÉM estejam associados (tr_cat)
-    // 4. À categoria selecionada 'tipo_produto' (t_cat)
-    
     $query = "
         SELECT DISTINCT t_class.*
         FROM {$wpdb->terms} t_class
@@ -489,25 +438,19 @@ function crns_get_valid_classifications( $cat_slug = '' ) {
         AND t_cat.slug = %s
         AND p.post_status = 'publish'
     ";
-
     $results = $wpdb->get_results( $wpdb->prepare($query, $cat_slug) );
-    
     return $results;
 }
 
-/* --- SCRIPT DO MENU MOBILE --- */
 function crns_mobile_menu_script() {
     ?>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const toggleBtn = document.querySelector('.menu-toggle');
         const nav = document.querySelector('.main-navigation');
-
         if(toggleBtn && nav) {
             toggleBtn.addEventListener('click', function() {
                 nav.classList.toggle('toggled');
-                
-                // Animação do ícone hambúrguer (X)
                 const expanded = toggleBtn.getAttribute('aria-expanded') === 'true' || false;
                 toggleBtn.setAttribute('aria-expanded', !expanded);
                 toggleBtn.classList.toggle('active');
@@ -516,7 +459,6 @@ function crns_mobile_menu_script() {
     });
     </script>
     <style>
-        /* Estilo extra para transformar o hambúrguer em X */
         .menu-toggle.active .bar:nth-child(2) { opacity: 0; }
         .menu-toggle.active .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
         .menu-toggle.active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
@@ -524,4 +466,3 @@ function crns_mobile_menu_script() {
     <?php
 }
 add_action('wp_footer', 'crns_mobile_menu_script');
-

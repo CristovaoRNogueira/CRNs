@@ -5,3 +5,5 @@ vendor/
 Thumbs.db
 *.log
 dist/
+.agent
+.vscode

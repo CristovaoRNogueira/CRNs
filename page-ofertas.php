@@ -140,7 +140,8 @@ $offers = new WP_Query($args);
         <aside class="offers-sidebar" id="mobile-filter-modal">
 
             <div class="mobile-modal-header">
-                <h3>Filtrar</h3>                
+                <h3>Filtrar</h3>
+                <button id="close-mobile-filter" class="close-btn">&times;</button>
             </div>
 
             <div class="filter-box">
@@ -154,6 +155,7 @@ $offers = new WP_Query($args);
                     <?php endif; ?>
 
                     <div id="secondary-filters" class="secondary-filters-wrapper" style="display:block !important;">
+                        
                         <?php
                         $perfis = function_exists('crns_get_valid_classifications') ? crns_get_valid_classifications($filter_cat) : [];
                         if (!empty($perfis)):
@@ -165,13 +167,15 @@ $offers = new WP_Query($args);
                                     <?php foreach ($perfis as $p): ?>
                                         <label>
                                             <input type="checkbox" name="classificacao[]" value="<?php echo $p->slug; ?>"
-                                                <?php
-                                                // CORREÇÃO: Usamos $filter_class em vez de $_GET['classificacao']
-                                                if (in_array($p->slug, (array)$filter_class)) echo 'checked';
-                                                ?>>
+                                                <?php if (in_array($p->slug, (array)$filter_class)) echo 'checked'; ?>>
                                             <?php echo $p->name; ?>
                                         </label>
                                     <?php endforeach; ?>
+                                    
+                                    <div class="filter-actions-small">
+                                        <button type="submit" class="btn-apply-small">Aplicar</button>
+                                        <button type="button" class="btn-clear-small" onclick="clearFilterGroup(this)">Limpar</button>
+                                    </div>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -183,6 +187,11 @@ $offers = new WP_Query($args);
                                 <div class="price-inputs">
                                     <input type="number" name="min_price" placeholder="Mín" value="<?php echo esc_attr($min_price); ?>">
                                     <input type="number" name="max_price" placeholder="Máx" value="<?php echo esc_attr($max_price); ?>">
+                                </div>
+                                
+                                <div class="filter-actions-small">
+                                    <button type="submit" class="btn-apply-small">Aplicar</button>
+                                    <button type="button" class="btn-clear-small" onclick="clearFilterGroup(this)">Limpar</button>
                                 </div>
                             </div>
                         </div>
@@ -197,6 +206,11 @@ $offers = new WP_Query($args);
                                         <label><input type="checkbox" name="marca[]" value="<?php echo $m->slug; ?>" <?php if (in_array($m->slug, $filter_marca)) echo 'checked'; ?>> <?php echo $m->name; ?></label>
                                 <?php endforeach;
                                 endif; ?>
+
+                                <div class="filter-actions-small">
+                                    <button type="submit" class="btn-apply-small">Aplicar</button>
+                                    <button type="button" class="btn-clear-small" onclick="clearFilterGroup(this)">Limpar</button>
+                                </div>
                             </div>
                         </div>
 
@@ -211,14 +225,19 @@ $offers = new WP_Query($args);
                                         <?php foreach ($data['options'] as $option): ?>
                                             <label><input type="checkbox" name="<?php echo $param; ?>[]" value="<?php echo esc_attr($option); ?>" <?php if (in_array($option, $selected)) echo 'checked'; ?>> <?php echo esc_html($option); ?></label>
                                         <?php endforeach; ?>
+
+                                        <div class="filter-actions-small">
+                                            <button type="submit" class="btn-apply-small">Aplicar</button>
+                                            <button type="button" class="btn-clear-small" onclick="clearFilterGroup(this)">Limpar</button>
+                                        </div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         <?php endif; ?>
 
                         <div style="padding-top:15px; padding-bottom: 50px;">
-                            <button type="submit" class="btn-filter">Aplicar Filtros</button>
-                            <a href="<?php echo esc_url(get_permalink()); ?>" class="btn-clear">Limpar</a>
+                            <button type="submit" class="btn-filter">Aplicar Todos os Filtros</button>
+                            <a href="<?php echo esc_url(get_permalink()); ?>" class="btn-clear">Limpar Tudo</a>
                         </div>
                     </div>
                 </form>
@@ -242,7 +261,6 @@ $offers = new WP_Query($args);
                         $discount_html = '';
                         if ($old_price > $price && $old_price > 0) {
                             $porc = round((($old_price - $price) / $old_price) * 100);
-                            // VOLTANDO PARA O BADGE LARANJA (ESTILO PILL ACIMA)
                             $discount_html = '<span class="discount-pill">-' . $porc . '%</span>';
                         }
                     ?>
@@ -301,6 +319,19 @@ $offers = new WP_Query($args);
         if (close) close.addEventListener('click', toggleModal);
         if (overlay) overlay.addEventListener('click', toggleModal);
     });
+
+    // Função para limpar apenas o grupo específico e permitir nova aplicação
+    function clearFilterGroup(btn) {
+        var group = btn.closest('.filter-group');
+        var inputs = group.querySelectorAll('input');
+        inputs.forEach(function(input) {
+            if(input.type === 'checkbox' || input.type === 'radio') {
+                input.checked = false;
+            } else if (input.type === 'number' || input.type === 'text') {
+                input.value = '';
+            }
+        });
+    }
 </script>
 
 <?php get_footer(); ?>

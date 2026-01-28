@@ -1,76 +1,283 @@
 <?php get_header(); ?>
 
-<div id="primary" class="content-area-review">
-    <main id="main" class="site-main">
-        <?php while( have_posts() ): the_post(); 
-            $price = get_post_meta( get_the_ID(), '_crns_price', true );
-            $link = get_post_meta( get_the_ID(), '_crns_affiliate_link', true );
-            $rating = get_post_meta( get_the_ID(), '_crns_rating', true );
+<div class="content-area review-page-layout">
+
+    <?php while (have_posts()):
+        the_post();
+        // 1. Coleta de Dados
+        $price = get_post_meta(get_the_ID(), '_crns_price', true);
+        $old_price = get_post_meta(get_the_ID(), '_crns_old_price', true);
+        $affiliate_link = get_post_meta(get_the_ID(), '_crns_affiliate_link', true);
+        $coupon_code = get_post_meta(get_the_ID(), '_crns_coupon_code', true);
+        $bg_url = get_the_post_thumbnail_url(get_the_ID(), 'full');
+
+        // Pega TODOS os metadados do post para uso geral
+        $all_meta = get_post_meta(get_the_ID());
+
+        // Cálculo de Desconto
+        $discount_html = '';
+        if ($old_price > $price && $old_price > 0) {
+            $porc = round((($old_price - $price) / $old_price) * 100);
+            $discount_html = '<span class="review-discount-badge">-' . $porc . '% OFF</span>';
+        }
+
+        // Specs DESTAQUE (Apenas para os ícones do topo)
+        // Se o valor não existir, o ícone não aparece.
+        $hero_specs = [
+            'cpu' => ['icon' => 'dashicons-dashboard', 'label' => 'Processador', 'val' => isset($all_meta['_crns_cpu'][0]) ? $all_meta['_crns_cpu'][0] : ''],
+            'ram' => ['icon' => 'dashicons-micro', 'label' => 'Memória RAM', 'val' => isset($all_meta['_crns_ram'][0]) ? $all_meta['_crns_ram'][0] : ''],
+            'gpu' => ['icon' => 'dashicons-desktop', 'label' => 'Placa de Vídeo', 'val' => isset($all_meta['_crns_gpu'][0]) ? $all_meta['_crns_gpu'][0] : ''],
+            'ssd' => ['icon' => 'dashicons-database', 'label' => 'Armazenamento', 'val' => isset($all_meta['_crns_storage'][0]) ? $all_meta['_crns_storage'][0] : ''],
+            'screen' => ['icon' => 'dashicons-visibility', 'label' => 'Tela', 'val' => isset($all_meta['_crns_screen'][0]) ? $all_meta['_crns_screen'][0] : ''],
+        ];
         ?>
-            <article id="post-<?php the_ID(); ?>" <?php post_class('review-container'); ?>>
-                <header class="review-header">
-                    <div class="container">
-                        <h1><?php the_title(); ?></h1>
-                    </div>
-                </header>
 
-                <div class="container review-grid">
-                    <div class="review-main-card">
-                        <div class="product-image-box">
-                            <?php the_post_thumbnail('large'); ?>
-                            <?php if($rating): ?><div class="rating-badge"><?php echo $rating; ?></div><?php endif; ?>
-                        </div>
-                        <div class="cta-box">
-                            <div class="price-tag"><strong>R$ <?php echo $price; ?></strong></div>
-                            <?php if($link): ?><a href="<?php echo $link; ?>" class="btn-affiliate pulse">VER NA LOJA</a><?php endif; ?>
-                        </div>
-                    </div>
+        <div class="crns-review-hero">
+            <div class="container">
 
-                    <div class="specs-box">
-                        <h3>Ficha Técnica</h3>
-                        <ul>
-                            <?php 
-                            $all_meta = get_post_meta(get_the_ID());
-                            $found = false;
-                            
-                            // 1. CAMPOS PADRÕES (Mostra primeiro, com labels bonitos)
-                            $standard_keys = [
-                                '_crns_os', '_crns_cpu', '_crns_ram', '_crns_storage', 
-                                '_crns_screen', '_crns_gpu', '_crns_camera_main', 
-                                '_crns_camera_front', '_crns_battery', '_crns_print_tech',
-                                '_crns_print_color', '_crns_print_conn', '_crns_voltage',
-                                '_crns_weight'
-                            ];
-
-                            foreach($standard_keys as $key) {
-                                if(isset($all_meta[$key][0]) && $all_meta[$key][0] !== '') {
-                                    // Formata usando a função global ou usa o nome da chave se falhar
-                                    $label = function_exists('crns_format_spec_label') ? crns_format_spec_label($key) : $key;
-                                    echo "<li><strong>{$label}:</strong> <span>{$all_meta[$key][0]}</span></li>";
-                                    $found = true;
-                                }
-                            }
-
-                            // 2. CAMPOS EXTRAS (Dinâmicos)
-                            // Agora só vai aparecer o que você REALMENTE cadastrou no botão "Adicionar Campo Extra"
-                            foreach($all_meta as $key => $values) {
-                                if (strpos($key, '_spec_') === 0 && $values[0] !== '') {
-                                    $label = function_exists('crns_format_spec_label') ? crns_format_spec_label($key) : ucwords(str_replace('_spec_', '', $key));
-                                    echo "<li><strong>{$label}:</strong> <span>{$values[0]}</span></li>";
-                                    $found = true;
-                                }
-                            }
-
-                            if(!$found) echo "<li style='color:#999'>Especificações não cadastradas.</li>";
-                            ?>
-                        </ul>
-                        <p class="specs-disclaimer">*Especificações fornecidas pelo fabricante.</p>
-                    </div>
+                <div class="crns-breadcrumb">
+                    <a href="<?php echo home_url(); ?>">Home</a>
+                    <span class="sep">/</span>
+                    <a href="<?php echo home_url('/ofertas'); ?>">Reviews</a>
+                    <span class="sep">/</span>
+                    <span class="current"><?php the_title(); ?></span>
                 </div>
 
-                <div class="container review-content"><?php the_content(); ?></div>
-            </article>
-        <?php endwhile; ?>
-    </main>
+                <div class="review-hero-grid">
+
+                    <div class="hero-gallery">
+                        <div class="main-image-wrapper">
+                            <?php echo $discount_html; ?>
+                            <img src="<?php echo esc_url($bg_url); ?>" alt="<?php the_title_attribute(); ?>"
+                                class="hero-main-img">
+                        </div>
+                    </div>
+
+                    <div class="hero-info">
+                        <div class="hero-badges">
+                            <?php
+                            $cats = get_the_terms(get_the_ID(), 'tipo_produto');
+                            if ($cats)
+                                echo '<span class="badge-cat">' . $cats[0]->name . '</span>';
+                            ?>
+                            <span class="badge-date"><span class="dashicons dashicons-calendar-alt"></span>
+                                <?php echo get_the_date('d/m/Y'); ?></span>
+                        </div>
+
+                        <h1 class="review-title"><?php the_title(); ?></h1>
+
+                        <div class="hero-quick-specs">
+                            <?php foreach ($hero_specs as $key => $data):
+                                if ($data['val']): ?>
+                                    <div class="quick-spec-item">
+                                        <span class="dashicons <?php echo $data['icon']; ?>"></span>
+                                        <div class="spec-text">
+                                            <small><?php echo $data['label']; ?></small>
+                                            <strong><?php echo esc_html($data['val']); ?></strong>
+                                        </div>
+                                    </div>
+                                <?php endif; endforeach; ?>
+                        </div>
+
+                        <div class="hero-price-box">
+                            <div class="price-header">
+                                <span class="best-price-label">Melhor preço hoje</span>
+                            </div>
+
+                            <div class="price-values">
+                                <?php if ($old_price > $price): ?>
+                                    <span class="old-price">De R$
+                                        <?php echo number_format((float) $old_price, 2, ',', '.'); ?></span>
+                                <?php endif; ?>
+
+                                <div class="current-price-row">
+                                    <span class="currency">R$</span>
+                                    <span class="value"><?php echo number_format((float) $price, 2, ',', '.'); ?></span>
+                                </div>
+
+                            </div>
+
+                            <?php if ($coupon_code): ?>
+                                <div class="coupon-area" style="margin-bottom: 15px;">
+                                    <div class="coupon-box" onclick="copyCoupon('<?php echo esc_js($coupon_code); ?>', this)">
+                                        <div style="display:flex; align-items:center; gap:8px;">
+                                            <span class="dashicons dashicons-tickets-alt"></span>
+                                            <span class="coupon-code-text"><?php echo esc_html($coupon_code); ?></span>
+                                        </div>
+                                        <span class="coupon-action">COPIAR</span>
+                                    </div>
+                                    <small class="coupon-msg"
+                                        style="display:none; color:#28a745; margin-top:5px; font-weight:600;">Cupom
+                                        copiado!</small>
+                                </div>
+                            <?php endif; ?>
+
+                            <div class="cta-actions">
+                                <a href="<?php echo $affiliate_link ? esc_url($affiliate_link) : '#'; ?>" target="_blank"
+                                    rel="nofollow" class="btn-buy-large pulse-animation">
+                                    Ver Oferta <span class="dashicons dashicons-external"></span>
+                                </a>
+                                <p class="safe-buy"><span class="dashicons dashicons-lock"></span> Compra Segura via
+                                    Amazon/ML</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container review-body-container">
+            <div class="review-layout-split">
+
+                <article class="review-content-main">
+
+                    <div class="entry-content">
+                        <?php the_content(); ?>
+                    </div>
+
+                    <div class="full-specs-table">
+                        <h3>Ficha Técnica Completa</h3>
+                        <table>
+                            <tbody>
+                                <?php
+                                // Lista de campos internos que NÃO devem aparecer na tabela
+                                $ignore_keys = [
+                                    '_crns_price',
+                                    '_crns_old_price',
+                                    '_crns_rating',
+                                    '_crns_affiliate_link',
+                                    '_crns_coupon_code',
+                                    '_edit_lock',
+                                    '_edit_last',
+                                    '_thumbnail_id',
+                                    '_wp_page_template'
+                                ];
+
+                                // Loop Automático: Varre todos os campos salvos
+                                foreach ($all_meta as $key => $values) {
+                                    // Pega o valor (get_post_meta retorna array)
+                                    $val = isset($values[0]) ? $values[0] : '';
+
+                                    // Pula se estiver vazio ou for campo de controle
+                                    if (empty($val) || in_array($key, $ignore_keys))
+                                        continue;
+
+                                    // Verifica se é um campo do tema (_crns_ ou _spec_)
+                                    if (strpos($key, '_crns_') === 0 || strpos($key, '_spec_') === 0) {
+
+                                        // Tenta usar a função de formatação do functions.php, senão faz um fallback simples
+                                        if (function_exists('crns_format_spec_label')) {
+                                            $label = crns_format_spec_label($key);
+                                        } else {
+                                            // Fallback caso a função não exista
+                                            $label = ucwords(str_replace(['_crns_', '_spec_', '_'], ['', '', ' '], $key));
+                                        }
+
+                                        echo '<tr>';
+                                        echo '<td><strong>' . esc_html($label) . '</strong></td>';
+                                        echo '<td>' . esc_html($val) . '</td>';
+                                        echo '</tr>';
+                                    }
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </article>
+
+                <aside class="review-sidebar desktop-only">
+                    <div class="sticky-sidebar-widget">
+                        <h3>Nossa Avaliação</h3>
+                        <div class="score-circle">
+                            <svg viewBox="0 0 36 36" class="circular-chart orange">
+                                <path class="circle-bg"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="circle" stroke-dasharray="90, 100"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <text x="18" y="20.35" class="percentage">9.0</text>
+                            </svg>
+                            <p>Excelente</p>
+                        </div>
+
+                        <div class="mini-offer-widget">
+                            <p>Melhor preço:</p>
+                            <span class="mini-price">R$ <?php echo number_format((float) $price, 2, ',', '.'); ?></span>
+                            <a href="<?php echo esc_url($affiliate_link); ?>" target="_blank" class="btn-sidebar-buy">Ir
+                                para Loja</a>
+                        </div>
+                    </div>
+                </aside>
+
+            </div>
+        </div>
+
+        <div class="mobile-sticky-buy-bar">
+            <div class="bar-info">
+                <span class="bar-label">Melhor preço:</span>
+                <span class="bar-price">R$ <?php echo number_format((float) $price, 2, ',', '.'); ?></span>
+            </div>
+            <a href="<?php echo esc_url($affiliate_link); ?>" target="_blank" class="btn-bar-buy">
+                Ver Oferta
+            </a>
+        </div>
+
+    <?php endwhile; ?>
 </div>
+
+<script>
+    function copyCoupon(code, element) {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(code).then(function () {
+                showCopyFeedback(element);
+            }, function (err) {
+                fallbackCopyTextToClipboard(code, element);
+            });
+        } else {
+            fallbackCopyTextToClipboard(code, element);
+        }
+    }
+
+    function fallbackCopyTextToClipboard(text, element) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            var successful = document.execCommand('copy');
+            if (successful) showCopyFeedback(element);
+        } catch (err) {
+            console.error('Fallback: Erro', err);
+        }
+        document.body.removeChild(textArea);
+    }
+
+    function showCopyFeedback(element) {
+        const actionSpan = element.querySelector('.coupon-action');
+        const originalText = actionSpan.innerText;
+
+        actionSpan.innerText = 'COPIADO!';
+        actionSpan.style.color = '#fff';
+        actionSpan.style.background = '#28a745';
+        element.style.borderColor = '#28a745';
+        element.style.background = '#e6fffa';
+
+        const msg = element.nextElementSibling;
+        if (msg) msg.style.display = 'block';
+
+        setTimeout(function () {
+            actionSpan.innerText = originalText;
+            actionSpan.style.color = '#28a745';
+            actionSpan.style.background = 'rgba(40, 167, 69, 0.1)';
+            element.style.borderColor = '#28a745';
+            element.style.background = '#fdfdfd';
+            if (msg) msg.style.display = 'none';
+        }, 3000);
+    }
+</script>
+
 <?php get_footer(); ?>
