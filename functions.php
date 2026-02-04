@@ -7,13 +7,13 @@ function crns_load_scripts()
     // Carrega o CSS Principal
     wp_enqueue_style('crns-style', get_stylesheet_uri(), array(), filemtime(get_template_directory() . '/style.css'), 'all');
 
-    // Carrega Fontes Google
+    // Carrega Fontes Google (Otimizado abaixo via filtro)
     wp_enqueue_style('google-fonts', 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap', array(), null);
 
     // CARREGA OS ÍCONES 
     wp_enqueue_style('dashicons');
 
-    // Scripts JS
+    // Scripts JS (Dropdown e Swiper serão adiados/defer pelo filtro abaixo)
     wp_enqueue_script('dropdown', get_template_directory_uri() . '/js/dropdown.js', array(), '1.0', true);
 
     // --- SLIDE ---
@@ -278,10 +278,9 @@ function crns_format_spec_label($meta_key)
     return ucwords($clean);
 }
 
-/* --- MOTOR DE FILTROS: VERSÃO BLINDADA (CORRIGIDO) --- */
+/* --- MOTOR DE FILTROS: VERSÃO BLINDADA --- */
 function crns_get_sidebar_filters($term_id = 0)
 {
-    // 1. Tenta pegar do cache
     $cache_key = 'crns_filters_' . $term_id;
     $cached_filters = get_transient($cache_key);
     if (false !== $cached_filters)
@@ -289,18 +288,15 @@ function crns_get_sidebar_filters($term_id = 0)
 
     global $wpdb;
 
-    // 2. Monta a Query Segura com JOIN
-    // Garante que só pegamos metadados de posts que estão PUBLICADOS e são REVIEWS
+    // JOIN com tabela de posts para checar status 'publish'
     $join_sql = "INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID";
     $where_sql = "AND p.post_status = 'publish' AND p.post_type = 'review'";
 
-    // Se tiver categoria selecionada, faz o JOIN com a tabela de termos
     if ($term_id > 0) {
         $join_sql .= " INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id";
         $where_sql .= $wpdb->prepare(" AND tr.term_taxonomy_id = %d", $term_id);
     }
 
-    // 3. Busca as Chaves (Keys) disponíveis
     $query = "
         SELECT DISTINCT pm.meta_key 
         FROM {$wpdb->postmeta} pm
@@ -316,7 +312,6 @@ function crns_get_sidebar_filters($term_id = 0)
 
     if ($keys) {
         foreach ($keys as $key) {
-            // 4. Para cada chave, busca os valores disponíveis
             $val_query = "
                 SELECT DISTINCT pm.meta_value 
                 FROM {$wpdb->postmeta} pm
@@ -342,13 +337,11 @@ function crns_get_sidebar_filters($term_id = 0)
         }
     }
 
-    // Salva no cache por 24 horas
     set_transient($cache_key, $filters, DAY_IN_SECONDS);
     return $filters;
 }
 
-/* --- LIMPEZA DE CACHE (Gatilhos Atualizados) --- */
-// Limpa o cache ao Salvar, Mover para Lixeira ou Excluir
+/* --- LIMPEZA DE CACHE --- */
 add_action('save_post', 'crns_clear_filter_cache');
 add_action('deleted_post', 'crns_clear_filter_cache');
 add_action('trashed_post', 'crns_clear_filter_cache');
@@ -356,7 +349,6 @@ add_action('trashed_post', 'crns_clear_filter_cache');
 function crns_clear_filter_cache()
 {
     global $wpdb;
-    // Apaga todos os transients de filtros do banco
     $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_crns_filters_%'");
 }
 
@@ -424,6 +416,33 @@ function crns_remove_native_custom_fields()
     remove_meta_box('postcustom', 'review', 'normal');
 }
 add_action('admin_menu', 'crns_remove_native_custom_fields');
+
+/* --- PERFORMANCE E SEO MOBILE --- */
+
+// 1. Adiar Scripts Não-Críticos (Defer)
+function crns_defer_scripts($tag, $handle, $src)
+{
+    // Adiciona 'defer' aos scripts do tema para não bloquear renderização
+    $defer_scripts = array('dropdown', 'swiper-js');
+
+    if (in_array($handle, $defer_scripts)) {
+        return '<script src="' . esc_url($src) . '" defer="defer"></script>' . "\n";
+    }
+
+    return $tag;
+}
+add_filter('script_loader_tag', 'crns_defer_scripts', 10, 3);
+
+// 2. Google Fonts Async (Evita bloqueio de renderização)
+function crns_async_google_fonts($html, $handle, $href, $media)
+{
+    if ('google-fonts' === $handle) {
+        // Carrega com media='print' (baixa prio) e troca para 'all' ao carregar
+        return '<link rel="stylesheet" href="' . esc_url($href) . '" media="print" onload="this.media=\'all\'" />';
+    }
+    return $html;
+}
+add_filter('style_loader_tag', 'crns_async_google_fonts', 10, 4);
 
 /* --- SCRIPT DROPDOWN (FOOTER) --- */
 function crns_filter_accordion_script()

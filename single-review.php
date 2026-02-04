@@ -10,7 +10,6 @@
         $old_price_raw = get_post_meta(get_the_ID(), '_crns_old_price', true);
         $affiliate_link = get_post_meta(get_the_ID(), '_crns_affiliate_link', true);
         $coupon_code = get_post_meta(get_the_ID(), '_crns_coupon_code', true);
-        $bg_url = get_the_post_thumbnail_url(get_the_ID(), 'full');
 
         // --- CORREÇÃO DE PREÇO ---
         $price = str_replace(',', '.', str_replace('.', '', $price_raw));
@@ -18,32 +17,28 @@
 
         // --- LÓGICA DA AVALIAÇÃO (NOTA) ---
         $rating_raw = get_post_meta(get_the_ID(), '_crns_rating', true);
-        // Garante que é número e troca vírgula por ponto se houver
         $rating = $rating_raw ? (float) str_replace(',', '.', $rating_raw) : 0;
 
-        // Cálculos para o Gráfico
-        $percent = $rating * 10; // Nota 9.5 vira 95
-        $dash_array = $percent . ', 100'; // Formato do SVG
-    
-        // Define Cor e Texto baseado na nota
+        $percent = $rating * 10;
+        $dash_array = $percent . ', 100';
+
         if ($rating >= 9) {
             $rating_label = "Excelente";
-            $rating_color = "#4caf50"; // Verde
+            $rating_color = "#4caf50";
         } elseif ($rating >= 7.5) {
             $rating_label = "Muito Bom";
-            $rating_color = "#8bc34a"; // Verde Claro
+            $rating_color = "#8bc34a";
         } elseif ($rating >= 6) {
             $rating_label = "Bom";
-            $rating_color = "#ffc107"; // Amarelo
+            $rating_color = "#ffc107";
         } elseif ($rating >= 4) {
             $rating_label = "Regular";
-            $rating_color = "#ff9800"; // Laranja
+            $rating_color = "#ff9800";
         } else {
             $rating_label = "Fraco";
-            $rating_color = "#f44336"; // Vermelho
+            $rating_color = "#f44336";
         }
 
-        // Pega TODOS os metadados
         $all_meta = get_post_meta(get_the_ID());
 
         // Cálculo de Desconto
@@ -79,8 +74,13 @@
                     <div class="hero-gallery">
                         <div class="main-image-wrapper">
                             <?php echo $discount_html; ?>
-                            <img src="<?php echo esc_url($bg_url); ?>" alt="<?php the_title_attribute(); ?>"
-                                class="hero-main-img">
+                            <?php
+                            the_post_thumbnail('large', array(
+                                'class' => 'hero-main-img',
+                                'loading' => 'eager',
+                                'fetchpriority' => 'high'
+                            ));
+                            ?>
                         </div>
                     </div>
 
@@ -125,6 +125,12 @@
                                     <span class="currency">R$</span>
                                     <span class="value"><?php echo number_format((float) $price, 2, ',', '.'); ?></span>
                                 </div>
+
+                                <span class="installments">
+                                    <?php if ($price > 0): ?>
+                                        em até 10x de R$ <?php echo number_format($price / 10, 2, ',', '.'); ?> sem juros
+                                    <?php endif; ?>
+                                </span>
                             </div>
 
                             <?php if ($coupon_code): ?>
@@ -147,9 +153,8 @@
                                     rel="nofollow" class="btn-buy-large pulse-animation">
                                     Ver Oferta <span class="dashicons dashicons-external"></span>
                                 </a>
-                                <p class="safe-buy"><span class="dashicons dashicons-lock"></span> Compra Segura Mercado
-                                    Livre/Amazon e outras</p>
-                                <p class="safe-buy">⚠️Preços podem mudar a qualquer momento</p>
+                                <p class="safe-buy"><span class="dashicons dashicons-lock"></span> Compra Segura via
+                                    Amazon/ML</p>
                             </div>
                         </div>
                     </div>
@@ -185,18 +190,15 @@
 
                                 foreach ($all_meta as $key => $values) {
                                     $val = isset($values[0]) ? $values[0] : '';
-
                                     if (empty($val) || in_array($key, $ignore_keys))
                                         continue;
 
                                     if (strpos($key, '_crns_') === 0 || strpos($key, '_spec_') === 0) {
-
                                         if (function_exists('crns_format_spec_label')) {
                                             $label = crns_format_spec_label($key);
                                         } else {
                                             $label = ucwords(str_replace(['_crns_', '_spec_', '_'], ['', '', ' '], $key));
                                         }
-
                                         echo '<tr>';
                                         echo '<td><strong>' . esc_html($label) . '</strong></td>';
                                         echo '<td>' . esc_html($val) . '</td>';

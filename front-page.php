@@ -36,11 +36,26 @@
                         <div class="swiper-wrapper">
                             <?php
                             $hero = new WP_Query(array('post_type' => 'review', 'posts_per_page' => 5, 'ignore_sticky_posts' => 1));
+
                             if ($hero->have_posts()):
                                 while ($hero->have_posts()):
                                     $hero->the_post();
-                                    $bg_url = get_the_post_thumbnail_url(get_the_ID(), 'large');
                                     $price = get_post_meta(get_the_ID(), '_crns_price', true);
+
+                                    // PERFORMANCE: Configurações de imagem
+                                    // Primeiro slide: Carrega Imediato (Eager) + Alta Prioridade (LCP)
+                                    // Outros slides: Carregamento lento (Lazy)
+                                    $img_attr = array(
+                                        'class' => 'slide-img-element',
+                                        'alt' => get_the_title(),
+                                    );
+
+                                    if ($hero->current_post === 0) {
+                                        $img_attr['loading'] = 'eager';
+                                        $img_attr['fetchpriority'] = 'high';
+                                    } else {
+                                        $img_attr['loading'] = 'lazy';
+                                    }
                                     ?>
                                     <div class="swiper-slide">
                                         <a href="<?php the_permalink(); ?>" class="slide-card">
@@ -56,8 +71,7 @@
                                             </div>
 
                                             <div class="slide-image">
-                                                <img src="<?php echo esc_url($bg_url); ?>"
-                                                    alt="<?php the_title_attribute(); ?>">
+                                                <?php the_post_thumbnail('large', $img_attr); ?>
                                             </div>
 
                                             <?php if ($price): ?>
@@ -162,7 +176,7 @@
             </a>
             <a href="<?php echo site_url('/ofertas/?filtro_cat=impressoras&classificacao=tanque-de-tinta'); ?>"
                 class="profile-card">
-                <span class="dashicons dashicons-printer" style="color: #e3007e;"></span><span>Colorida</span>
+                <span class="dashicons dashicons-printer" style="color: #e3007e;"></span><span>Tanque de Tinta</span>
             </a>
             <a href="<?php echo site_url('/ofertas/?filtro_cat=impressoras&classificacao=wifi'); ?>"
                 class="profile-card">
@@ -204,13 +218,10 @@
                             $price = get_post_meta(get_the_ID(), '_crns_price', true);
                             $old_price = get_post_meta(get_the_ID(), '_crns_old_price', true);
 
-                            // --- CORREÇÃO DE PREÇO ---
-                            // Remove ponto de milhar (se houver) e troca vírgula por ponto para cálculo
                             $price_num = str_replace(',', '.', str_replace('.', '', $price));
                             $old_price_num = str_replace(',', '.', str_replace('.', '', $old_price));
 
                             $discount_html = '';
-                            // Usa os valores numéricos corrigidos para comparação
                             if ($old_price_num > $price_num && $old_price_num > 0) {
                                 $porc = round((($old_price_num - $price_num) / $old_price_num) * 100);
                                 $discount_html = '<span class="discount-pill">-' . $porc . '%</span>';
