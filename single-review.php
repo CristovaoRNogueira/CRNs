@@ -4,14 +4,46 @@
 
     <?php while (have_posts()):
         the_post();
+
         // 1. Coleta de Dados
-        $price = get_post_meta(get_the_ID(), '_crns_price', true);
-        $old_price = get_post_meta(get_the_ID(), '_crns_old_price', true);
+        $price_raw = get_post_meta(get_the_ID(), '_crns_price', true);
+        $old_price_raw = get_post_meta(get_the_ID(), '_crns_old_price', true);
         $affiliate_link = get_post_meta(get_the_ID(), '_crns_affiliate_link', true);
         $coupon_code = get_post_meta(get_the_ID(), '_crns_coupon_code', true);
         $bg_url = get_the_post_thumbnail_url(get_the_ID(), 'full');
 
-        // Pega TODOS os metadados do post para uso geral
+        // --- CORREÇÃO DE PREÇO ---
+        $price = str_replace(',', '.', str_replace('.', '', $price_raw));
+        $old_price = str_replace(',', '.', str_replace('.', '', $old_price_raw));
+
+        // --- LÓGICA DA AVALIAÇÃO (NOTA) ---
+        $rating_raw = get_post_meta(get_the_ID(), '_crns_rating', true);
+        // Garante que é número e troca vírgula por ponto se houver
+        $rating = $rating_raw ? (float) str_replace(',', '.', $rating_raw) : 0;
+
+        // Cálculos para o Gráfico
+        $percent = $rating * 10; // Nota 9.5 vira 95
+        $dash_array = $percent . ', 100'; // Formato do SVG
+    
+        // Define Cor e Texto baseado na nota
+        if ($rating >= 9) {
+            $rating_label = "Excelente";
+            $rating_color = "#4caf50"; // Verde
+        } elseif ($rating >= 7.5) {
+            $rating_label = "Muito Bom";
+            $rating_color = "#8bc34a"; // Verde Claro
+        } elseif ($rating >= 6) {
+            $rating_label = "Bom";
+            $rating_color = "#ffc107"; // Amarelo
+        } elseif ($rating >= 4) {
+            $rating_label = "Regular";
+            $rating_color = "#ff9800"; // Laranja
+        } else {
+            $rating_label = "Fraco";
+            $rating_color = "#f44336"; // Vermelho
+        }
+
+        // Pega TODOS os metadados
         $all_meta = get_post_meta(get_the_ID());
 
         // Cálculo de Desconto
@@ -21,8 +53,7 @@
             $discount_html = '<span class="review-discount-badge">-' . $porc . '% OFF</span>';
         }
 
-        // Specs DESTAQUE (Apenas para os ícones do topo)
-        // Se o valor não existir, o ícone não aparece.
+        // Specs DESTAQUE
         $hero_specs = [
             'cpu' => ['icon' => 'dashicons-dashboard', 'label' => 'Processador', 'val' => isset($all_meta['_crns_cpu'][0]) ? $all_meta['_crns_cpu'][0] : ''],
             'ram' => ['icon' => 'dashicons-micro', 'label' => 'Memória RAM', 'val' => isset($all_meta['_crns_ram'][0]) ? $all_meta['_crns_ram'][0] : ''],
@@ -94,7 +125,6 @@
                                     <span class="currency">R$</span>
                                     <span class="value"><?php echo number_format((float) $price, 2, ',', '.'); ?></span>
                                 </div>
-
                             </div>
 
                             <?php if ($coupon_code): ?>
@@ -117,8 +147,9 @@
                                     rel="nofollow" class="btn-buy-large pulse-animation">
                                     Ver Oferta <span class="dashicons dashicons-external"></span>
                                 </a>
-                                <p class="safe-buy"><span class="dashicons dashicons-lock"></span> Compra Segura via
-                                    Amazon/ML</p>
+                                <p class="safe-buy"><span class="dashicons dashicons-lock"></span> Compra Segura Mercado
+                                    Livre/Amazon e outras</p>
+                                <p class="safe-buy">⚠️Preços podem mudar a qualquer momento</p>
                             </div>
                         </div>
                     </div>
@@ -140,7 +171,6 @@
                         <table>
                             <tbody>
                                 <?php
-                                // Lista de campos internos que NÃO devem aparecer na tabela
                                 $ignore_keys = [
                                     '_crns_price',
                                     '_crns_old_price',
@@ -153,23 +183,17 @@
                                     '_wp_page_template'
                                 ];
 
-                                // Loop Automático: Varre todos os campos salvos
                                 foreach ($all_meta as $key => $values) {
-                                    // Pega o valor (get_post_meta retorna array)
                                     $val = isset($values[0]) ? $values[0] : '';
 
-                                    // Pula se estiver vazio ou for campo de controle
                                     if (empty($val) || in_array($key, $ignore_keys))
                                         continue;
 
-                                    // Verifica se é um campo do tema (_crns_ ou _spec_)
                                     if (strpos($key, '_crns_') === 0 || strpos($key, '_spec_') === 0) {
 
-                                        // Tenta usar a função de formatação do functions.php, senão faz um fallback simples
                                         if (function_exists('crns_format_spec_label')) {
                                             $label = crns_format_spec_label($key);
                                         } else {
-                                            // Fallback caso a função não exista
                                             $label = ucwords(str_replace(['_crns_', '_spec_', '_'], ['', '', ' '], $key));
                                         }
 
@@ -189,16 +213,22 @@
                 <aside class="review-sidebar desktop-only">
                     <div class="sticky-sidebar-widget">
                         <h3>Nossa Avaliação</h3>
-                        <div class="score-circle">
-                            <svg viewBox="0 0 36 36" class="circular-chart orange">
-                                <path class="circle-bg"
-                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                <path class="circle" stroke-dasharray="90, 100"
-                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                <text x="18" y="20.35" class="percentage">9.0</text>
-                            </svg>
-                            <p>Excelente</p>
-                        </div>
+                        <?php if ($rating > 0): ?>
+                            <div class="score-circle">
+                                <svg viewBox="0 0 36 36" class="circular-chart">
+                                    <path class="circle-bg"
+                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path class="circle" stroke-dasharray="<?php echo $dash_array; ?>"
+                                        stroke="<?php echo $rating_color; ?>"
+                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <text x="18" y="20.35" class="percentage"><?php echo $rating; ?></text>
+                                </svg>
+                                <p style="color:<?php echo $rating_color; ?>; font-weight:bold;"><?php echo $rating_label; ?>
+                                </p>
+                            </div>
+                        <?php else: ?>
+                            <p style="text-align:center; color:#777;">Ainda não avaliado</p>
+                        <?php endif; ?>
 
                         <div class="mini-offer-widget">
                             <p>Melhor preço:</p>

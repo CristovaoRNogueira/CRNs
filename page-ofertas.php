@@ -258,9 +258,13 @@ $offers = new WP_Query($args);
                         $price = get_post_meta(get_the_ID(), '_crns_price', true);
                         $old_price = get_post_meta(get_the_ID(), '_crns_old_price', true);
 
+                        // --- CORREÇÃO DE PREÇO (MESMA LÓGICA) ---
+                        $price_num = str_replace(',', '.', str_replace('.', '', $price));
+                        $old_price_num = str_replace(',', '.', str_replace('.', '', $old_price));
+
                         $discount_html = '';
-                        if ($old_price > $price && $old_price > 0) {
-                            $porc = round((($old_price - $price) / $old_price) * 100);
+                        if ($old_price_num > $price_num && $old_price_num > 0) {
+                            $porc = round((($old_price_num - $price_num) / $old_price_num) * 100);
                             $discount_html = '<span class="discount-pill">-' . $porc . '%</span>';
                         }
                     ?>
@@ -269,19 +273,19 @@ $offers = new WP_Query($args);
                             <a href="<?php the_permalink(); ?>" class="ml-card-link">
                                 <div class="card-img">
                                     <?php echo $discount_html; ?>
-                                    <?php the_post_thumbnail('medium'); ?>
+                                    <?php the_post_thumbnail('large'); ?>
                                 </div>
 
                                 <div class="card-info">
                                     <h3 class="card-title"><?php the_title(); ?></h3>
 
                                     <div class="card-price-block">
-                                        <?php if ($old_price > $price): ?>
-                                            <span class="card-old-price">R$ <?php echo number_format((float)$old_price, 2, ',', '.'); ?></span>
+                                        <?php if ($old_price_num > $price_num): ?>
+                                            <span class="card-old-price">R$ <?php echo number_format((float)$old_price_num, 2, ',', '.'); ?></span>
                                         <?php endif; ?>
 
                                         <div class="ml-price-row">
-                                            <span class="card-price">R$ <?php echo number_format((float)$price, 2, ',', '.'); ?></span>
+                                            <span class="card-price">R$ <?php echo number_format((float)$price_num, 2, ',', '.'); ?></span>
                                         </div>
 
                                     </div>
@@ -320,7 +324,6 @@ $offers = new WP_Query($args);
         if (overlay) overlay.addEventListener('click', toggleModal);
     });
 
-    // Função para limpar apenas o grupo específico e permitir nova aplicação
     function clearFilterGroup(btn) {
         var group = btn.closest('.filter-group');
         var inputs = group.querySelectorAll('input');
