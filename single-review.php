@@ -125,12 +125,6 @@
                                     <span class="currency">R$</span>
                                     <span class="value"><?php echo number_format((float) $price, 2, ',', '.'); ?></span>
                                 </div>
-
-                                <span class="installments">
-                                    <?php if ($price > 0): ?>
-                                        em até 10x de R$ <?php echo number_format($price / 10, 2, ',', '.'); ?> sem juros
-                                    <?php endif; ?>
-                                </span>
                             </div>
 
                             <?php if ($coupon_code): ?>
@@ -153,8 +147,10 @@
                                     rel="nofollow" class="btn-buy-large pulse-animation">
                                     Ver Oferta <span class="dashicons dashicons-external"></span>
                                 </a>
-                                <p class="safe-buy"><span class="dashicons dashicons-lock"></span> Compra Segura via
-                                    Amazon/ML</p>
+                                <p class="safe-buy"><span class="dashicons dashicons-lock"></span> Compra Segura
+                                </p>
+                                <p class="safe-buy">⚠️ Preços podem mudar a qualquer momento
+                                </p>
                             </div>
                         </div>
                     </div>
