@@ -27,7 +27,7 @@
                 <div class="container">
                     <div class="header-wrapper">
 
-                        <button id="mobile-menu-trigger" class="mobile-toggle">
+                        <button id="mobile-menu-trigger" class="mobile-toggle" aria-label="Abrir Menu">
                             <span class="dashicons dashicons-menu-alt3"></span>
                         </button>
 
@@ -52,7 +52,7 @@
                         </nav>
 
                         <div class="header-actions">
-                            <button id="search-toggle-btn" class="search-toggle-btn">
+                            <button id="search-toggle-btn" class="search-toggle-btn" aria-label="Abrir Pesquisa">
                                 <span class="dashicons dashicons-search"></span>
                             </button>
 
@@ -63,7 +63,8 @@
                                         value="<?php echo get_search_query(); ?>" name="s" />
                                     <button type="submit" class="search-submit-btn"><span
                                             class="dashicons dashicons-search"></span></button>
-                                    <button type="button" id="close-search-btn" class="close-search">&times;</button>
+                                    <button type="button" id="close-search-btn" class="close-search"
+                                        aria-label="Fechar Pesquisa">&times;</button>
                                 </form>
                             </div>
                         </div>

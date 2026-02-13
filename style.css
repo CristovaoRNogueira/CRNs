@@ -1464,25 +1464,57 @@ img { max-width: 100%; height: auto; }
     font-size: 0.9rem;
 }
 
+/* --- REDES SOCIAIS FOOTER MELHORADO --- */
 .footer-social {
     display: flex;
-    gap: 15px;
+    gap: 12px; /* Espaçamento equilibrado */
+    margin-top: 15px; /* Separa do texto acima */
 }
+
 .footer-social a {
-    color: #fff;
-    background: #333;
-    width: 36px;
-    height: 36px;
+    color: #ccc; /* Cor do ícone normal */
+    background: rgba(255,255,255,0.05); /* Fundo sutil */
+    width: 42px; /* Área de clique maior */
+    height: 42px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: 0.3s;
+    transition: all 0.3s ease;
     text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.1); /* Borda fina */
+    font-size: 20px; /* Ícone maior */
 }
+
+/* Efeito Hover Geral (Levanta e brilha) */
 .footer-social a:hover {
-    background: var(--primary);
-    transform: translateY(-3px);
+    transform: translateY(-4px);
+    color: #fff;
+    border-color: transparent;
+}
+
+/* Cores Específicas das Marcas (Usando o aria-label do seu HTML) */
+.footer-social a[aria-label="Instagram"]:hover {
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+    box-shadow: 0 5px 15px rgba(214, 36, 159, 0.4);
+}
+
+.footer-social a[aria-label="Grupo WhatsApp"]:hover {
+    background: #25D366;
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);
+}
+
+.footer-social a[aria-label="YouTube"]:hover {
+    background: #FF0000;
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+}
+
+/* Ajuste Mobile (Centralizar se o footer estiver centralizado) */
+@media (max-width: 600px) {
+    .footer-social {
+        justify-content: center;
+        margin-bottom: 20px;
+    }
 }
 
 /* Listas de Links (Menu e Categorias) */
@@ -2776,4 +2808,34 @@ body.page-template-page-ofertas .container-flex {
     background: rgba(40, 167, 69, 0.1);
     padding: 4px 8px;
     border-radius: 4px;
+}
+
+/* --- OTIMIZAÇÃO DE TOQUE (MOBILE UX) --- */
+.filter-options label {
+    display: flex; /* Melhora o alinhamento do checkbox com o texto */
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0; /* Aumenta a área de clique do dedo */
+    cursor: pointer;
+}
+.filter-options input[type="checkbox"] {
+    width: 18px;
+    height: 18px; /* Checkbox um pouco maior para celular */
+}
+#close-mobile-filter {
+    padding: 15px; /* Maior área para fechar o modal */
+}
+
+.blog-cat-badge {
+    position:absolute;
+    top:10px;
+    left:10px;
+    background:#0073aa;
+    color:#fff;
+    padding:4px 10px;
+    border-radius:4px;
+    font-size:11px;
+    z-index:2;
+    font-weight:bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }

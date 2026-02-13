@@ -563,3 +563,22 @@ function crns_mobile_menu_script()
     <?php
 }
 add_action('wp_footer', 'crns_mobile_menu_script');
+
+/* --- GOOGLE ADSENSE: GERAR ADS.TXT DINAMICAMENTE --- */
+function crns_generate_ads_txt($ads_txt_content)
+{
+    $meu_codigo_adsense = "google.com, pub-5036236896273491, DIRECT, f08c47fec0942fa0";
+    return $ads_txt_content . "\n" . $meu_codigo_adsense;
+}
+add_filter('ads_txt', 'crns_generate_ads_txt');
+
+/* --- RESTRINGIR RESULTADOS DA BUSCA (Apenas Produtos e Posts) --- */
+function crns_limit_search_results($query)
+{
+    // Aplica a regra APENAS na busca do site (ignora o painel de administrador)
+    if (!is_admin() && $query->is_main_query() && $query->is_search()) {
+        // Força o WP a procurar apenas em "review" (Produtos) e "post" (Artigos)
+        $query->set('post_type', array('review', 'post'));
+    }
+}
+add_action('pre_get_posts', 'crns_limit_search_results');

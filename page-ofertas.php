@@ -108,7 +108,7 @@ $offers = new WP_Query($args);
                 'smartphones' => 'dashicons-smartphone',
                 'impressoras' => 'dashicons-printer',
                 'games' => 'dashicons-games',
-                'perifericos' => 'dashicons-mouse',
+                'perifericos' => 'dashicons-admin-tools',
                 'monitores' => 'dashicons-desktop'
             ];
 
@@ -270,28 +270,35 @@ $offers = new WP_Query($args);
                     ?>
 
                         <div class="offer-card-v2 ml-card">
-                            <a href="<?php the_permalink(); ?>" class="ml-card-link">
-                                <div class="card-img">
-                                    <?php echo $discount_html; ?>
-                                    <?php the_post_thumbnail('large'); ?>
-                                </div>
+    <a href="<?php the_permalink(); ?>" class="ml-card-link">
+        <div class="card-img">
+            <?php echo $discount_html; ?>
+            
+            <?php 
+            // OTIMIZAÇÃO: Lazy Load (Performance) e Texto Alternativo (SEO)
+            the_post_thumbnail('large', array(
+                'loading' => 'lazy',
+                'alt'     => get_the_title()
+            )); 
+            ?>
+        </div>
 
-                                <div class="card-info">
-                                    <h3 class="card-title"><?php the_title(); ?></h3>
+        <div class="card-info">
+            <h3 class="card-title"><?php the_title(); ?></h3>
 
-                                    <div class="card-price-block">
-                                        <?php if ($old_price_num > $price_num): ?>
-                                            <span class="card-old-price">R$ <?php echo number_format((float)$old_price_num, 2, ',', '.'); ?></span>
-                                        <?php endif; ?>
+            <div class="card-price-block">
+                <?php if ($old_price_num > $price_num): ?>
+                    <span class="card-old-price">R$ <?php echo number_format((float)$old_price_num, 2, ',', '.'); ?></span>
+                <?php endif; ?>
 
-                                        <div class="ml-price-row">
-                                            <span class="card-price">R$ <?php echo number_format((float)$price_num, 2, ',', '.'); ?></span>
-                                        </div>
+                <div class="ml-price-row">
+                    <span class="card-price">R$ <?php echo number_format((float)$price_num, 2, ',', '.'); ?></span>
+                </div>
 
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
+            </div>
+        </div>
+    </a>
+</div>
                     <?php endwhile;
                     wp_reset_postdata(); ?>
                 <?php else: ?>
